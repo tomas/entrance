@@ -14,8 +14,8 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = ">= 1.3.6"
   s.rubyforge_project         = "entrance"
   
-  s.add_runtime_dependency "bcrypt", ">= 3.0.0"
-  s.add_runtime_dependency "activesupport", ">= 3.0.0"
+  s.add_runtime_dependency "bcrypt", "~> 3.0"
+  s.add_runtime_dependency "activesupport", "~> 3.0"
 
   s.files        = `git ls-files`.split("\n")
   s.executables  = `git ls-files`.split("\n").map{|f| f =~ /^bin\/(.*)/ ? $1 : nil}.compact
