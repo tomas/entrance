@@ -1,10 +1,9 @@
 # -*- encoding: utf-8 -*-
-require File.expand_path("../lib/dimension/version", __FILE__)
+require File.expand_path("../lib/entrance/version", __FILE__)
 
 Gem::Specification.new do |s|
   s.name        = "entrance"
-  s.version     = Entrance
-  ::VERSION
+  s.version     = Entrance::VERSION
   s.platform    = Gem::Platform::RUBY
   s.authors     = ['Tomás Pollak']
   s.email       = ['tomas@forkhq.com']
