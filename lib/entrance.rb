@@ -27,7 +27,7 @@ require 'entrance/controller'
 require 'entrance/model'
 require 'entrance/ciphers'
 
-require 'active_support/time'
+require 'active_support/core_ext/numeric/time'
 
 module Entrance
 
