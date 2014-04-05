@@ -27,6 +27,8 @@ require 'entrance/controller'
 require 'entrance/model'
 require 'entrance/ciphers'
 
+require 'active_support/time'
+
 module Entrance
 
   REMEMBER_ME_TOKEN = 'auth_token'

@@ -1,12 +1,14 @@
+require 'active_support/concern'
+
 module Model
   extend ActiveSupport::Concern
 
   included do
     # verify that username/password attributes are present
-    attrs = Doorman.config.model.constantize.columns.collect(&:name)
+    attrs = Entrance.config.model.constantize.columns.collect(&:name)
     %w(username_attr password_attr).each do |key|
-      attr = Doorman.config.send(key)
-      raise "Couldn't find '#{attr}' in #{Doorman.config.model} model." unless attrs.include?(attr)
+      attr = Entrance.config.send(key)
+      raise "Couldn't find '#{attr}' in #{Entrance.config.model} model." unless attrs.include?(attr)
     end
 
     validates :password, :presence => true, :length => 6..32, :if => :password_required?
@@ -20,7 +22,7 @@ module Model
       return if username.blank? or password.blank?
 
       query = {}
-      query[Doorman.config.username_attr] = username.downcase.strip
+      query[Entrance.config.username_attr] = username.downcase.strip
       if u = where(query).first
         return u.authenticated?(password) ? u : nil
       end
@@ -30,8 +32,8 @@ module Model
       return if token.blank?
 
       query = {}
-      query[Doorman.config.reset_token_attr] = token.strip
-      if u = where(query).first and u.send(Doorman.config.reset_until_attr) > Time.now
+      query[Entrance.config.reset_token_attr] = token.strip
+      if u = where(query).first and u.send(Entrance.config.reset_until_attr) > Time.now
         return u
       end
     end
@@ -43,22 +45,22 @@ module Model
   end
 
   def remember_me!(until_date = nil)
-    update_attribute(Doorman.config.remember_token_attr, Doorman.generate_token)
+    update_attribute(Entrance.config.remember_token_attr, Entrance.generate_token)
     update_remember_token_expiration!(until_date)
   end
 
   def update_remember_token_expiration!(until_date = nil)
-    timestamp = until_date || Doorman.config.remember_for
-    update_attribute(Doorman.config.remember_until_attr, timestamp.from_now)
+    timestamp = until_date || Entrance.config.remember_for
+    update_attribute(Entrance.config.remember_until_attr, timestamp.from_now)
   end
 
   def forget_me!
-    update_attribute(Doorman.config.remember_token_attr, nil)
-    update_attribute(Doorman.config.remember_until_attr, nil)
+    update_attribute(Entrance.config.remember_token_attr, nil)
+    update_attribute(Entrance.config.remember_until_attr, nil)
   end
 
   def password
-    @password || Doorman.config.cipher.read(send(Doorman.config.password_attr))
+    @password || Entrance.config.cipher.read(send(Entrance.config.password_attr))
   end
 
   def password=(new_password)
@@ -68,30 +70,30 @@ module Model
     @password_changed = true
 
     # if we're using salt and it is empty, generate one
-    if Doorman.config.salt_attr \
-      and send(Doorman.config.salt_attr).blank?
-        self.send(Doorman.config.salt_attr + '=', Doorman.generate_token)
+    if Entrance.config.salt_attr \
+      and send(Entrance.config.salt_attr).blank?
+        self.send(Entrance.config.salt_attr + '=', Entrance.generate_token)
     end
 
-    self.send(Doorman.config.password_attr + '=', encrypt_password(new_password))
+    self.send(Entrance.config.password_attr + '=', encrypt_password(new_password))
   end
 
   def request_password_reset!
-    send(Doorman.config.reset_token_attr + '=', Doorman.generate_token)
-    update_attribute(Doorman.config.reset_until_attr, Doorman.config.reset_password_window.from_now)
+    send(Entrance.config.reset_token_attr + '=', Entrance.generate_token)
+    update_attribute(Entrance.config.reset_until_attr, Entrance.config.reset_password_window.from_now)
     if save(:validate => false)
-      Doorman.config.mailer_class.constantize.reset_password_request(self).deliver
+      Entrance.config.mailer_class.constantize.reset_password_request(self).deliver
     end
   end
 
   private
 
   def get_salt
-    Doorman.config.salt_attr && send(Doorman.config.salt_attr)
+    Entrance.config.salt_attr && send(Entrance.config.salt_attr)
   end
 
   def encrypt_password(string)
-    Doorman.config.cipher.encrypt(string, get_salt)
+    Entrance.config.cipher.encrypt(string, get_salt)
   end
 
   def password_required?

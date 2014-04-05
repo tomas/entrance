@@ -15,11 +15,11 @@ module Entrance
 
       # same logic as restful authentication
       def self.encrypt(password, salt)
-        digest = Doorman.config.secret
+        digest = Entrance.config.secret
         raise "Secret not set!" if digest.blank?
 
-        Doorman.config.stretches.times do
-          str = [digest, salt, password, Doorman.config.secret].join(JOIN_STRING)
+        Entrance.config.stretches.times do
+          str = [digest, salt, password, Entrance.config.secret].join(JOIN_STRING)
           digest = Digest::SHA1.hexdigest(str)
         end
 
@@ -34,7 +34,6 @@ module Entrance
         BCrypt::Password.new(password)
       end
 
-      # same logic as restful authentication
       def self.encrypt(password, salt = nil)
         BCrypt::Password.create(password)
       end

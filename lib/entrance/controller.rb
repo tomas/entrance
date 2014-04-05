@@ -1,13 +1,15 @@
 module Entrance
 
   module Controller
+    
+    REMEMBER_ME_TOKEN = 'auth_token'.freeze
 
     def self.included(base)
       base.send(:helper_method, :current_user, :logged_in?, :logged_out?) if base.respond_to?(:helper_method)
     end
 
     def authenticate_and_login(username, password, remember_me = false)
-      if user = Doorman.config.model.constantize.authenticate(username, password)
+      if user = Entrance.config.model.constantize.authenticate(username, password)
         login!(user, remember_me)
         user
       end
@@ -45,7 +47,7 @@ module Entrance
     private
 
     def current_user=(new_user)
-      raise "Invalid user: #{new_user}" unless new_user.nil? or new_user.is_a?(Doorman.config.model.constantize)
+      raise "Invalid user: #{new_user}" unless new_user.nil? or new_user.is_a?(Entrance.config.model.constantize)
       session[:user_id] = new_user ? new_user.id : nil
       @current_user = new_user # should be nil when logging out
     end
@@ -65,8 +67,8 @@ module Entrance
       if request.xhr?
         render :nothing => true, :status => 401
       else
-        flash[:notice] = I18n.t(Doorman.config.access_denied_message_key)
-        redirect_to Doorman.config.access_denied_redirect_to
+        flash[:notice] = I18n.t(Entrance.config.access_denied_message_key)
+        redirect_to Entrance.config.access_denied_redirect_to
       end
     end
 
@@ -78,9 +80,9 @@ module Entrance
       return unless cookies[REMEMBER_ME_TOKEN]
 
       query = {}
-      query[Doorman.config.remember_token_attr] = cookies[REMEMBER_ME_TOKEN]
+      query[Entrance.config.remember_token_attr] = cookies[REMEMBER_ME_TOKEN]
       if user = User.where(query).first \
-        and user.send(Doorman.config.remember_until_attr) > Time.now
+        and user.send(Entrance.config.remember_until_attr) > Time.now
           self.current_user = user
           # user.update_remember_token_expiration!
           user
@@ -102,13 +104,13 @@ module Entrance
 
     def set_remember_cookie
       values = {
-        :expires  => Doorman.config.remember_for.from_now,
-        :httponly => Doorman.config.cookie_httponly,
-        :path     => Doorman.config.cookie_path,
-        :secure   => Doorman.config.cookie_secure,
-        :value    => current_user.send(Doorman.config.remember_token_attr)
+        :expires  => Entrance.config.remember_for.from_now,
+        :httponly => Entrance.config.cookie_httponly,
+        :path     => Entrance.config.cookie_path,
+        :secure   => Entrance.config.cookie_secure,
+        :value    => current_user.send(Entrance.config.remember_token_attr)
       }
-      values[:domain] = Doorman.config.cookie_domain if Doorman.config.cookie_domain
+      values[:domain] = Entrance.config.cookie_domain if Entrance.config.cookie_domain
 
       cookies[REMEMBER_ME_TOKEN] = values
     end
