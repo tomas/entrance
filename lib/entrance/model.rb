@@ -33,8 +33,9 @@ module Model
 
       query = {}
       query[Entrance.config.reset_token_attr] = token.strip
-      if u = where(query).first and u.send(Entrance.config.reset_until_attr) > Time.now
-        return u
+      if u = where(query).first \
+        and (!Doorman.config.reset_until_attr || u.send(Doorman.config.reset_until_attr) > Time.now)
+          return u
       end
     end
 
@@ -80,7 +81,9 @@ module Model
 
   def request_password_reset!
     send(Entrance.config.reset_token_attr + '=', Entrance.generate_token)
-    update_attribute(Entrance.config.reset_until_attr, Entrance.config.reset_password_window.from_now)
+    if Doorman.config.reset_until_attr
+      update_attribute(Entrance.config.reset_until_attr, Entrance.config.reset_password_window.from_now)
+    end
     if save(:validate => false)
       Entrance.config.mailer_class.constantize.reset_password_request(self).deliver
     end
