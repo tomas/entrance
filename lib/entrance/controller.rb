@@ -90,7 +90,7 @@ module Entrance
     end
 
     def store_location
-      session[:return_to] = request.request_uri
+      session[:return_to] = request.path # request.request_uri
     end
 
     def redirect_to_stored_or(default_path)
