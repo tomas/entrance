@@ -44,6 +44,12 @@ Now, you're ready to roll.
 ``` rb
 class SessionsController < ApplicationController
 
+  skip_before_filter :login_required
+  
+  def new
+    # render login form
+  end
+
   def create
     if user = authenticate_and_login(params[:email], params[:password], params[:remember_me])
       redirect_to '/app'
@@ -58,14 +64,6 @@ end
 If you need more control, you can call directly the model's `.authenticate` method.
 
 ``` rb
-class SessionsController < ApplicationController
-
-  skip_before_filter :login_required
-  
-  def new
-    # render login form
-  end
-
   def create
     if user = User.authenticate(params[:email], params[:password]) and user.active?
       login!(user, (params[:remember_me] == '1'))
@@ -74,8 +72,6 @@ class SessionsController < ApplicationController
       redirect_to :new, :notice => "Invalid credentials."
     end
   end
-
-end
 ```
 
 ## Entrance::Config
