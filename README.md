@@ -3,7 +3,9 @@ Entrance
 
 Clean, adaptable authentication library for Rails and Sinatra.
 
-   $ gem install entrance
+    $ gem install entrance
+
+Or add to your Gemfile.
 
 # Usage
 
