@@ -13,7 +13,7 @@ module Entrance
     def initialize
       @model                 = 'User'
       @mailer_class          = 'UserMailer'
-      @cipher                = Ciphers::SHA1
+      @cipher                = Ciphers::BCrypt
       @secret                = nil
       @stretches             = 1
       @username_attr         = 'email'
