@@ -67,7 +67,11 @@ module Entrance
       if request.xhr?
         render :nothing => true, :status => 401
       else
-        flash[:notice] = I18n.t(Entrance.config.access_denied_message_key)
+        if Entrance.config.access_denied_message_key
+          flash[:notice] = I18n.t(Entrance.config.access_denied_message_key)
+        else
+          flash[:notice] = 'Access denied.'
+        end
         redirect_to Entrance.config.access_denied_redirect_to
       end
     end
@@ -117,7 +121,7 @@ module Entrance
 
     def delete_remember_cookie
       cookies.delete(REMEMBER_ME_TOKEN)
-      # cookies.delete(REMEMBER_ME_TOKEN, :domain => AppConfig.cookie_domain)
+      # cookies.delete(REMEMBER_ME_TOKEN, :domain => Entrance.config.cookie_domain)
     end
 
 #    def cookies

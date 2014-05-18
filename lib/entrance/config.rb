@@ -13,7 +13,7 @@ module Entrance
     def initialize
       @model                      = 'User'
       @mailer_class               = 'UserMailer'
-      @cipher                     = Ciphers::BCrypt
+      @cipher                     = Ciphers::BCrypt # or Ciphers::SHA1 
       @secret                     = nil
       @stretches                  = 10
       @salt_attr                  = nil
@@ -24,7 +24,7 @@ module Entrance
       @reset_token_attr           = 'reset_token'
       @reset_until_attr           = 'reset_token_expires_at'
       @access_denied_redirect_to  = '/'
-      @access_denied_message_key  = 'messages.access_denied'
+      @access_denied_message_key  = nil # e.g. 'messages.access_denied'
       @reset_password_window      = 1.hour
       @remember_for               = 2.weeks
       @cookie_domain              = nil
