@@ -83,26 +83,26 @@ All available options, along with their defaults.
 
 ``` rb
 Entrance.configure do |config|
-  config.model                 = 'User'
-  config.mailer_class          = 'UserMailer'
-  config.cipher                = Ciphers::BCrypt
-  config.secret                = nil
-  config.stretches             = 1
-  config.username_attr         = 'email'
-  config.password_attr         = 'password_hash'
-  config.salt_attr             = nil
-  config.remember_token_attr   = 'remember_token'
-  config.remember_until_attr   = 'remember_token_expires_at'
-  config.reset_token_attr      = 'reset_token'
-  config.reset_until_attr      = 'reset_token_expires_at'
+  config.model                      = 'User'
+  config.mailer_class               = 'UserMailer'
+  config.cipher                     = Ciphers::BCrypt
+  config.secret                     = nil
+  config.stretches                  = 10
+  config.salt_attr                  = nil
+  config.username_attr              = 'email'
+  config.password_attr              = 'password_hash'
+  config.remember_token_attr        = 'remember_token'
+  config.remember_until_attr        = 'remember_token_expires_at'
+  config.reset_token_attr           = 'reset_token'
+  config.reset_until_attr           = 'reset_token_expires_at'
   config.access_denied_redirect_to  = '/'
-  config.access_denied_message_key = 'messages.access_denied'
-  config.reset_password_window = 1.hour
-  config.remember_for          = 2.weeks
-  config.cookie_domain         = nil
-  config.cookie_secure         = true
-  config.cookie_path           = '/'
-  config.cookie_httponly       = false
+  config.access_denied_message_key  = 'messages.access_denied'
+  config.reset_password_window      = 1.hour
+  config.remember_for               = 2.weeks
+  config.cookie_domain              = nil
+  config.cookie_secure              = true
+  config.cookie_path                = '/'
+  config.cookie_httponly            = false
 end
 ```
 
