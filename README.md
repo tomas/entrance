@@ -25,6 +25,8 @@ end
 class ApplicationController < ActionController::Base
   include Entrance::Controller
 
+  before_filter :login_required
+
   ...
 end
 
@@ -58,6 +60,12 @@ If you need more control, you can call directly the model's `.authenticate` meth
 ``` rb
 class SessionsController < ApplicationController
 
+  skip_before_filter :login_required
+  
+  def new
+    # render login form
+  end
+
   def create
     if user = User.authenticate(params[:email], params[:password]) and user.active?
       login!(user, (params[:remember_me] == '1'))
@@ -70,7 +78,7 @@ class SessionsController < ApplicationController
 end
 ```
 
-# Entrance::Config
+## Entrance::Config
 
 All available options, along with their defaults.
 
@@ -97,8 +105,9 @@ Entrance.configure do |config|
   config.cookie_path           = '/'
   config.cookie_httponly       = false
 end
+```
 
-# Entrance::Controller
+## Entrance::Controller
 
 When including it into your controller, this module will provide the following methods:
   
@@ -112,7 +121,7 @@ And the following helpers:
  - logged_in?
  - logged_out?
   
-# Entrance::Model
+## Entrance::Model
 
 Provides:
 
