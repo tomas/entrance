@@ -11,26 +11,26 @@ module Entrance
     )
 
     def initialize
-      @model                 = 'User'
-      @mailer_class          = 'UserMailer'
-      @cipher                = Ciphers::BCrypt
-      @secret                = nil
-      @stretches             = 1
-      @username_attr         = 'email'
-      @password_attr         = 'password_hash'
-      @salt_attr             = nil
-      @remember_token_attr   = 'remember_token'
-      @remember_until_attr   = 'remember_token_expires_at'
-      @reset_token_attr      = 'reset_token'
-      @reset_until_attr      = 'reset_token_expires_at'
+      @model                      = 'User'
+      @mailer_class               = 'UserMailer'
+      @cipher                     = Ciphers::BCrypt
+      @secret                     = nil
+      @stretches                  = 10
+      @salt_attr                  = nil
+      @username_attr              = 'email'
+      @password_attr              = 'password_hash'
+      @remember_token_attr        = 'remember_token'
+      @remember_until_attr        = 'remember_token_expires_at'
+      @reset_token_attr           = 'reset_token'
+      @reset_until_attr           = 'reset_token_expires_at'
       @access_denied_redirect_to  = '/'
-      @access_denied_message_key = 'messages.access_denied'
-      @reset_password_window = 1.hour
-      @remember_for          = 2.weeks
-      @cookie_domain         = nil
-      @cookie_secure         = true
-      @cookie_path           = '/'
-      @cookie_httponly       = false
+      @access_denied_message_key  = 'messages.access_denied'
+      @reset_password_window      = 1.hour
+      @remember_for               = 2.weeks
+      @cookie_domain              = nil
+      @cookie_secure              = true
+      @cookie_path                = '/'
+      @cookie_httponly            = false
     end
 
   end
