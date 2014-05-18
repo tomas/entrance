@@ -68,7 +68,8 @@ If you need more control, you can call directly the model's `.authenticate` meth
 ``` rb
   def create
     if user = User.authenticate(params[:email], params[:password]) and user.active?
-      login!(user, (params[:remember_me] == '1'))
+      remember = params[:remember_me] == '1'
+      login!(user, remember)
       redirect_to '/app'
     else
       redirect_to :new, :notice => "Invalid credentials."
@@ -109,8 +110,8 @@ end
 
 When including it into your controller, this module will provide the following methods:
   
- - authenticate_and_login
- - login!(user)
+ - authenticate_and_login(username, password, remember_me = false)
+ - login!(user, remember_me = false)
  - logout!
 
 And the following helpers: 
