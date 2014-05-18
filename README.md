@@ -5,7 +5,7 @@ Clean, adaptable authentication library for Rails and Sinatra.
 
     $ gem install entrance
 
-Or add to your Gemfile.
+Still in early phase, but it works. BCrypt and SHA1 (a-la Restful Auth) encryption are supported.
 
 # Usage
 
@@ -16,10 +16,9 @@ require 'entrance'
 
 Entrance.configure do |config|
   config.username_attr             = 'email'
-  config.password_attr             = 'password_hash'
-  config.secret                    = 'some-long-and-very-secret-key'
-  config.reset_password_window     = 1.hour
-  config.remember_for              = 2.weeks
+  config.password_attr             = 'password_hash' # make sure you map the right attribute name
+  config.access_denied_message_key = 'messages.access_denied'
+  config.remember_for              = 1.month
 end
 
 # in your controller
@@ -95,7 +94,7 @@ Entrance.configure do |config|
   config.reset_token_attr           = 'reset_token'
   config.reset_until_attr           = 'reset_token_expires_at'
   config.access_denied_redirect_to  = '/'
-  config.access_denied_message_key  = 'messages.access_denied'
+  config.access_denied_message_key  = nil
   config.reset_password_mailer      = 'UserMailer'
   config.reset_password_method      = 'reset_password_request'
   config.reset_password_window      = 1.hour
