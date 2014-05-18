@@ -85,7 +85,8 @@ module Model
       update_attribute(Entrance.config.reset_until_attr, Entrance.config.reset_password_window.from_now)
     end
     if save(:validate => false)
-      Entrance.config.mailer_class.constantize.reset_password_request(self).deliver
+      method = Entrance.config.reset_password_method
+      Entrance.config.reset_password_mailer.constantize.send(method, self).deliver
     end
   end
 

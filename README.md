@@ -84,7 +84,6 @@ All available options, along with their defaults.
 ``` rb
 Entrance.configure do |config|
   config.model                      = 'User'
-  config.mailer_class               = 'UserMailer'
   config.cipher                     = Ciphers::BCrypt
   config.secret                     = nil
   config.stretches                  = 10
@@ -97,6 +96,8 @@ Entrance.configure do |config|
   config.reset_until_attr           = 'reset_token_expires_at'
   config.access_denied_redirect_to  = '/'
   config.access_denied_message_key  = 'messages.access_denied'
+  config.reset_password_mailer      = 'UserMailer'
+  config.reset_password_method      = 'reset_password_request'
   config.reset_password_window      = 1.hour
   config.remember_for               = 2.weeks
   config.cookie_domain              = nil

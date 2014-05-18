@@ -3,16 +3,16 @@ module Entrance
   class Config
 
     attr_accessor *%w(
-      model mailer_class cipher secret stretches
+      model cipher secret stretches
       username_attr password_attr salt_attr
       remember_token_attr remember_until_attr reset_token_attr reset_until_attr
-      access_denied_redirect_to access_denied_message_key reset_password_window remember_for
+      access_denied_redirect_to access_denied_message_key
+      reset_password_mailer reset_password_method reset_password_window remember_for
       cookie_domain cookie_secure cookie_path cookie_httponly
     )
 
     def initialize
       @model                      = 'User'
-      @mailer_class               = 'UserMailer'
       @cipher                     = Ciphers::BCrypt # or Ciphers::SHA1 
       @secret                     = nil
       @stretches                  = 10
@@ -25,6 +25,8 @@ module Entrance
       @reset_until_attr           = 'reset_token_expires_at'
       @access_denied_redirect_to  = '/'
       @access_denied_message_key  = nil # e.g. 'messages.access_denied'
+      @reset_password_mailer      = 'UserMailer'
+      @reset_password_method      = 'reset_password_request'
       @reset_password_window      = 1.hour
       @remember_for               = 2.weeks
       @cookie_domain              = nil
