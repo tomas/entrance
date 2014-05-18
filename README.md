@@ -116,6 +116,7 @@ When including it into your controller, this module will provide the following m
 
 And the following helpers: 
 
+ - current_user 
  - login_required
  - logged_in?
  - logged_out?
