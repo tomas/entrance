@@ -72,7 +72,8 @@ module Entrance
         else
           flash[:notice] = 'Access denied.'
         end
-        redirect_to Entrance.config.access_denied_redirect_to
+        url = Entrance.config.access_denied_redirect_to + '/?redirect=' + request.path
+        redirect_to url
       end
     end
 
