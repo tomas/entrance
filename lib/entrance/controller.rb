@@ -5,7 +5,7 @@ module Entrance
     REMEMBER_ME_TOKEN = 'auth_token'.freeze
 
     def self.included(base)
-      base.send(:helper_method, :current_user, :logged_in?, :logged_out?) if base.respond_to?(:helper_method)
+      base.send(:helper_method, :current_user, .:logged_in?, :logged_out?) if base.respond_to?(:helper_method)
     end
 
     def authenticate_and_login(username, password, remember_me = false)
@@ -79,7 +79,7 @@ module Entrance
     end
 
     def login_from_session
-      self.current_user = User.find(session[:user_id]) if session[:user_id]
+      self.current_user = Entrance.config.model.constantize.find(session[:user_id]) if session[:user_id]
     end
 
     def login_from_cookie
@@ -87,7 +87,7 @@ module Entrance
 
       query = {}
       query[Entrance.config.remember_token_attr] = cookies[REMEMBER_ME_TOKEN]
-      if user = User.where(query).first \
+      if user = Entrance.config.model.constantize.where(query).first \
         and user.send(Entrance.config.remember_until_attr) > Time.now
           self.current_user = user
           # user.update_remember_token_expiration!
