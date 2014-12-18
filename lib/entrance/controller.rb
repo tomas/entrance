@@ -64,6 +64,7 @@ module Entrance
 
     def access_denied
       store_location
+      
       if request.xhr?
         render :nothing => true, :status => 401
       else
@@ -72,7 +73,7 @@ module Entrance
         else
           flash[:notice] = 'Access denied.'
         end
-        url = Entrance.config.access_denied_redirect_to + '/?redirect=' + request.path
+        url = Entrance.config.access_denied_redirect_to + '/?redirect=' + request.fullpath
         redirect_to url
       end
     end
