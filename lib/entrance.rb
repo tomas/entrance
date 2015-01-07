@@ -1,7 +1,7 @@
-require 'entrance/config'
 require 'entrance/controller'
 require 'entrance/model'
 require 'entrance/ciphers'
+require 'entrance/config'
 
 require 'active_support/core_ext/numeric/time'
 
@@ -13,6 +13,11 @@ module Entrance
 
   def self.configure
     yield config
+    config.validate!
+  end
+
+  def self.model
+    @model ||= config.model.constantize
   end
 
   def self.generate_token(length = 40)

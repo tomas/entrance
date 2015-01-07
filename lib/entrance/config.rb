@@ -4,7 +4,7 @@ module Entrance
 
     attr_accessor *%w(
       model cipher secret stretches
-      username_attr password_attr salt_attr
+      unique_key username_attr password_attr salt_attr
       remember_token_attr remember_until_attr reset_token_attr reset_until_attr
       access_denied_redirect_to access_denied_message_key
       reset_password_mailer reset_password_method reset_password_window remember_for
@@ -13,10 +13,11 @@ module Entrance
 
     def initialize
       @model                      = 'User'
-      @cipher                     = Ciphers::BCrypt # or Ciphers::SHA1 
+      @cipher                     = Entrance::Ciphers::BCrypt # or Entrance::Ciphers::SHA1 
       @secret                     = nil
       @stretches                  = 10
       @salt_attr                  = nil
+      @unique_key                 = 'id'
       @username_attr              = 'email'
       @password_attr              = 'password_hash'
       @remember_token_attr        = 'remember_token'
@@ -33,6 +34,24 @@ module Entrance
       @cookie_secure              = true
       @cookie_path                = '/'
       @cookie_httponly            = false
+    end
+
+    def validate!
+      if cipher == Ciphers::SHA1 && secret.nil?
+        raise "The SHA1 cipher requires a valid config.secret to be set."
+      end
+    end
+
+    def can?(what, val = nil)
+      if val
+        instance_variable_set("@can_#{what}", val)
+      else
+        !!instance_variable_get("@can_#{what}")
+      end
+    end
+
+    def permit!(option)
+      raise "#{option} is disabled!" unless can?(option)
     end
 
   end
