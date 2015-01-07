@@ -5,11 +5,11 @@ module Entrance
     REMEMBER_ME_TOKEN = 'auth_token'.freeze
 
     def self.included(base)
-      base.send(:helper_method, :current_user, .:logged_in?, :logged_out?) if base.respond_to?(:helper_method)
+      base.send(:helper_method, :current_user, :logged_in?, :logged_out?) if base.respond_to?(:helper_method)
     end
 
     def authenticate_and_login(username, password, remember_me = false)
-      if user = Entrance.config.model.constantize.authenticate(username, password)
+      if user = Entrance.model.authenticate(username, password)
         login!(user, remember_me)
         user
       end
@@ -17,18 +17,19 @@ module Entrance
 
     def login!(user, remember_me = false)
       self.current_user = user
-      remember_or_forget(remember_me)
+      remember_or_forget(remember_me) if Entrance.config.can?(:remember)
     end
 
     def logout!
       if logged_in?
-        current_user.forget_me!
+        current_user.forget_me! if Entrance.config.can?(:remember)
         self.current_user = nil
       end
-      delete_remember_cookie
+      delete_remember_cookie if Entrance.config.can?(:remember)
     end
 
-    def login_required
+    def login_required(opts = {})
+      return if opts[:except] and opts[:except].include?(request.path_info)
       logged_in? || access_denied
     end
 
@@ -46,13 +47,16 @@ module Entrance
 
     private
 
+    # new_user may be nil (when logging out) or an instance of the Entrance.model class
     def current_user=(new_user)
-      raise "Invalid user: #{new_user}" unless new_user.nil? or new_user.is_a?(Entrance.config.model.constantize)
-      session[:user_id] = new_user ? new_user.id : nil
+      raise "Invalid user: #{new_user}" unless new_user.nil? or new_user.is_a?(Entrance.model)
+      session[:user_id] = new_user ? new_user.send(Entrance.config.unique_key) : nil
       @current_user = new_user # should be nil when logging out
     end
 
     def remember_or_forget(remember_me)
+      Entrance.config.permit!(:remember)
+
       if remember_me
         current_user.remember_me!
         set_remember_cookie
@@ -64,30 +68,24 @@ module Entrance
 
     def access_denied
       store_location
-      
       if request.xhr?
-        render :nothing => true, :status => 401
+        return_401
       else
-        if Entrance.config.access_denied_message_key
-          flash[:notice] = I18n.t(Entrance.config.access_denied_message_key)
-        else
-          flash[:notice] = 'Access denied.'
-        end
-        url = Entrance.config.access_denied_redirect_to + '/?redirect=' + request.fullpath
-        redirect_to url
+        set_flash_message if respond_to?(:flash)
+        common_redirect(Entrance.config.access_denied_redirect_to)
       end
     end
 
     def login_from_session
-      self.current_user = Entrance.config.model.constantize.find(session[:user_id]) if session[:user_id]
+      self.current_user = Entrance.model.where(session[:user_id]).first if session[:user_id]
     end
 
     def login_from_cookie
-      return unless cookies[REMEMBER_ME_TOKEN]
+      return unless Entrance.config.can?(:remember) && request.cookies[REMEMBER_ME_TOKEN]
 
       query = {}
-      query[Entrance.config.remember_token_attr] = cookies[REMEMBER_ME_TOKEN]
-      if user = Entrance.config.model.constantize.where(query).first \
+      query[Entrance.config.remember_token_attr] = request.cookies[REMEMBER_ME_TOKEN]
+      if user = Entrance.model.where(query).first \
         and user.send(Entrance.config.remember_until_attr) > Time.now
           self.current_user = user
           # user.update_remember_token_expiration!
@@ -96,16 +94,16 @@ module Entrance
     end
 
     def store_location
-      session[:return_to] = request.path # request.request_uri
+      session[:return_to] = request.fullpath
     end
 
     def redirect_to_stored_or(default_path)
-      redirect_to(session[:return_to] || default_path)
+      common_redirect(session[:return_to] || default_path)
       session[:return_to] = nil
     end
 
     def redirect_to_back_or(default_path)
-      redirect_to(request.env['HTTP_REFERER'] || default_path)
+      common_redirect(request.env['HTTP_REFERER'] || default_path)
     end
 
     def set_remember_cookie
@@ -118,17 +116,57 @@ module Entrance
       }
       values[:domain] = Entrance.config.cookie_domain if Entrance.config.cookie_domain
 
-      cookies[REMEMBER_ME_TOKEN] = values
+      set_cookie!(REMEMBER_ME_TOKEN, values)
     end
 
     def delete_remember_cookie
-      cookies.delete(REMEMBER_ME_TOKEN)
-      # cookies.delete(REMEMBER_ME_TOKEN, :domain => Entrance.config.cookie_domain)
+      delete_cookie!(REMEMBER_ME_TOKEN)
     end
 
-#    def cookies
-#      @cookies ||= @env['action_dispatch.cookies'] || Rack::Request.new(@env).cookies
-#    end
+    ############################################
+    # compat stuff between rails & sinatra
+
+    def set_cookie!(name, cookie)
+      if respond_to?(:cookie)
+        cookies[name] = cookie
+      else
+        response.set_cookie(name, cookie)
+      end
+    end
+
+    def delete_cookie!(name)
+      if respond_to?(:cookie)
+        cookies.delete(name)
+      else
+        response.delete_cookie(name)
+      end
+    end
+
+    def return_401
+      if respond_to?(:halt) # sinatra
+        halt(401)
+      else # rails
+        render :nothing => true, :status => 401
+      end
+    end
+
+    def set_flash_message
+      return unless respond_to?(:flash)
+
+      if Entrance.config.access_denied_message_key
+        flash[:notice] = I18n.t(Entrance.config.access_denied_message_key)
+      else
+        flash[:notice] = 'Access denied.'
+      end
+    end
+
+    def common_redirect(url)
+      if respond_to?(:redirect)
+        redirect(to(url)) # sinatra
+      else
+        redirect_to(url)  # rails
+      end
+    end
 
   end
 
