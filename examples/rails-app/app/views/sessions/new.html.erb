@@ -1,0 +1,29 @@
+<div class="login">
+
+  <h2>Log in</h2>
+
+  <%= form_tag({:url => login_path}) do %>
+
+  <p>
+    <%= text_field_tag 'email', @email, :tabindex => 1, :type => 'email', :placeholder => 'Email' %>
+  </p>
+
+  <p>
+    <%= password_field_tag 'password', nil, :tabindex => 2, :placeholder => 'Password' %>
+  </p>
+
+  <p>
+    <label for="remember_me">Remember me</label>
+    <%= check_box_tag 'remember_me', nil, :tabindex => 2, :placeholder => 'Remember me' %>
+  </p>
+
+  <%= submit_tag 'Log in',
+        :tabindex => 4,
+        :disable_with => 'Logging in...',
+        :class => 'right btn btn-primary' %>
+
+  <% end %>
+
+  <p>No account? <%= link_to('Sign up', signup_path) %></p>
+
+</div>

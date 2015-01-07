@@ -1,0 +1,32 @@
+<div class="signup">
+
+  <%= form_for(@user, :url => signup_path) do |f| %>
+
+    <h2>Sign up</h2>
+
+    <p>
+      <%= f.text_field :name, :tabindex => 1, :placeholder => 'Your name' %>
+    </p>
+
+    <p>
+      <%= f.text_field :email, :tabindex => 2, :placeholder => 'Your email' %>
+    </p>
+
+    <p>
+      <%= f.password_field :password, :tabindex => 3, :placeholder => 'Your password' %>
+    </p>
+
+    <p>
+      <%= f.password_field :password_confirmation, :tabindex => 4, :placeholder => 'Retype password' %>
+    </p>
+
+    <%= f.submit 'Sign up',
+        :tabindex => 4,
+        :disable_with => 'Creating account...',
+        :class => 'right btn btn-primary' %>
+
+  <% end %>
+
+  <p>Have an account? <%= link_to('Log in', login_path) %></p>
+
+</div><!-- /signup  -->

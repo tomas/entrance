@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>EntranceApp</title>
+  <%= stylesheet_link_tag "application", media: "all" %>
+  <%= csrf_meta_tags %>
+</head>
+<body>
+
+<% [:error, :notice, :success].each do |msg| %>
+  <% if flash && flash[msg] %>
+  <%= raw "<div class='alert alert-#{msg}'>#{flash[msg]}</div>" %>
+  <% end %>
+<% end %>
+
+<%= yield %>
+
+</body>
+</html>
