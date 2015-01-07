@@ -1,3 +1,4 @@
+require 'entrance/config'
 require 'entrance/controller'
 require 'entrance/model'
 require 'entrance/ciphers'
