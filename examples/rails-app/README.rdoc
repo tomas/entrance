@@ -1,7 +1,9 @@
 == Example Rails App with Entrance
 
+    git clone https://github.com/tomas/entrance
+    cd entrance/examples/rails-app
     bundle install
     bin/rake db:migrate
     bin/rails s
 
-Then point your browser to localhost:3000 and sign up, then sign in using your credentials.
+And ready-o. Then point your browser to localhost:3000 and sign up, then sign in using your credentials.
