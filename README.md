@@ -71,12 +71,12 @@ If you need more control, -- like checking a users state before letting him in -
       login!(user, params[:remember_me] == '1')
       redirect_to '/app'
     else
-      redirect_to :new, :notice => "Invalid credentials."
+      redirect_to '/login', :notice => "Invalid credentials."
     end
   end
 ```
 
-As you can see, Entrance comes with out-of-box support for the "remember me" option, as well as some other things. Read below.
+As you can see, Entrance comes with out-of-box support for the "remember me" option. It also supports the usual 'reset password' token/email logic, but that's it. That's as far as Entrance goes -- we want to keep things simple and lean.
 
 ## Entrance::Config
 
