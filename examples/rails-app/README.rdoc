@@ -1,4 +1,4 @@
-== Example Entrance with Rails
+== Example Rails App with Entrance
 
     bundle install
     bin/rake db:migrate
