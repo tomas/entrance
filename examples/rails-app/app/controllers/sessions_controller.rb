@@ -7,8 +7,8 @@ class SessionsController < ApplicationController
   end
 
   def create
-    remember = ['on', 'true'].include?(params[:remember_me])
-    puts "Should remember: #{remember}"
+    # boolean flag that determines whether we'll log the user automatically if the browser is closed
+    remember = ['on', 'true', '1'].include?(params[:remember_me])
     if user = authenticate_and_login(params[:email], params[:password], remember)
       redirect_to :root
     else
