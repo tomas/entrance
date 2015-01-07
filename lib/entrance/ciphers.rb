@@ -9,8 +9,8 @@ module Entrance
 
       JOIN_STRING = '--'
 
-      def self.read(password)
-        password
+      def self.match?(stored, given, salt = nil)
+        stored === encrypt(given, salt)
       end
 
       # same logic as restful authentication
@@ -30,12 +30,14 @@ module Entrance
 
     module BCrypt
 
-      def self.read(password)
-        BCrypt::Password.new(password)
+      # https://github.com/codahale/bcrypt-ruby
+      def self.match?(stored, given, salt = nil)
+        ::BCrypt::Password.new(stored) == given
+        # ::BCrypt::Password.new(stored) == encrypt(given)
       end
 
       def self.encrypt(password, salt = nil)
-        BCrypt::Password.create(password)
+        ::BCrypt::Password.create(password)
       end
 
     end
