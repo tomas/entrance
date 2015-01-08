@@ -96,12 +96,13 @@ module Entrance
     end
 
     def store_location
-      session[:return_to] = request.fullpath
+      path = request.fullpath
+      session[:return_to] = path unless ['/favicon.ico'].include?(path)
     end
 
     def redirect_to_stored_or(default_path)
-      common_redirect(session[:return_to] || default_path)
-      session[:return_to] = nil
+      stored = session.delete(:return_to)
+      common_redirect(stored || default_path, true)
     end
 
     def redirect_to_back_or(default_path)
@@ -162,9 +163,10 @@ module Entrance
       end
     end
 
-    def common_redirect(url)
+    # when redirecting to stored_path
+    def common_redirect(url, with_base = false)
       if respond_to?(:redirect)
-        redirect(to(url)) # sinatra
+        return with_base ? redirect(url) : redirect(to(url)) # sinatra
       else
         redirect_to(url)  # rails
       end
