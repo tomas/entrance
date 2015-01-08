@@ -2,6 +2,7 @@ require 'entrance/controller'
 require 'entrance/model'
 require 'entrance/ciphers'
 require 'entrance/config'
+require 'digest/sha1'
 
 module Entrance
 

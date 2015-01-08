@@ -1,11 +1,10 @@
-require 'digest/sha1'
-require 'bcrypt'
 
 module Entrance
 
   module Ciphers
 
     module SHA1
+      require 'digest/sha1'
 
       JOIN_STRING = '--'
 
@@ -29,6 +28,7 @@ module Entrance
     end
 
     module BCrypt
+      require 'bcrypt'
 
       # https://github.com/codahale/bcrypt-ruby
       def self.match?(stored, given, salt = nil)
