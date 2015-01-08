@@ -77,7 +77,9 @@ module Entrance
     end
 
     def login_from_session
-      self.current_user = Entrance.model.where(session[:user_id]).first if session[:user_id]
+      query = {}
+      query[Entrance.config.unique_key] = session[:user_id]
+      self.current_user = Entrance.model.where(query).first if session[:user_id]
     end
 
     def login_from_cookie
