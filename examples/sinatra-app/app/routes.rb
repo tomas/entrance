@@ -46,7 +46,7 @@ module Example
         login!(user, remember)
 
         flash[:success] = 'Welcome back!'
-        redirect(session[:return_to] || to('/'))
+        redirect_to_stored_or to('/')
       else
         flash[:error] = "Couldn't log you in. Please try again."
         redirect to('/login')
