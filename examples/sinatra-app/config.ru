@@ -1,5 +1,5 @@
 require './app/routes'
 
 map '/' do
-	run Example::Routes
+  run Example::Routes
 end
