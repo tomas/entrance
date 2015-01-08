@@ -21,7 +21,9 @@ module Entrance
   end
 
   def self.generate_token(length = 40)
-    SecureRandom.hex(length/2).encode('UTF-8')
+    str = SecureRandom.hex(length/2)
+    return str unless str.respond_to?(:encode)
+    str.encode('UTF-8')
   end
 
 end
