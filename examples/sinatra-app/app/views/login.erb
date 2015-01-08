@@ -1,0 +1,22 @@
+<h2>Log in</h2>
+
+<form accept-charset="UTF-8" action="<%= url('/login') %>" method="post">
+
+  <p>
+    <input id="email" name="email" placeholder="Email" tabindex="1" type="email" />
+  </p>
+
+  <p>
+    <input id="password" name="password" placeholder="Password" tabindex="2" type="password" />
+  </p>
+
+  <p>
+    <label for="remember_me">Remember me</label>
+    <input checked="checked" id="remember_me" name="remember_me" type="checkbox" />
+  </p>
+
+  <input class="right btn btn-primary" data-disable-with="Logging in..." name="commit" tabindex="4" type="submit" value="Log in" />
+
+</form>
+  
+<p>Don't have an account? <a href="<%= url('/signup') %>">Sign up</a>.</p>

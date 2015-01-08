@@ -1,0 +1,25 @@
+<h2>Sign up</h2>
+
+<form accept-charset="UTF-8" action="/signup" class="new_user" method="post">
+
+  <p>
+    <input id="user_name" name="user[name]" placeholder="Your name" tabindex="1" type="text" />
+  </p>
+
+  <p>
+    <input id="user_email" name="user[email]" placeholder="Your email" tabindex="2" type="text" />
+  </p>
+
+  <p>
+    <input id="user_password" name="user[password]" placeholder="Your password" tabindex="3" type="password" />
+  </p>
+
+  <p>
+    <input id="user_password_confirmation" name="user[password_confirmation]" placeholder="Retype password" tabindex="4" type="password" />
+  </p>
+
+  <input class="right btn btn-primary" data-disable-with="Creating account..." name="commit" tabindex="4" type="submit" value="Sign up" />
+
+</form>
+
+<p>Have an account? <a href="<%= url('/login') %>">Log in</a></p>
