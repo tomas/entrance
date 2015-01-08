@@ -5,8 +5,6 @@ Clean, adaptable authentication library for Rails and Sinatra.
 
     $ gem install entrance
 
-Still in early phase, but it works. BCrypt and SHA1 (a-la Restful Auth) encryption are supported.
-
 # Usage
 
 ``` rb
