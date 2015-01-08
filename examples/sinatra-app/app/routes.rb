@@ -1,4 +1,4 @@
-%w(./app/models logger sinatra/base sinatra/flash entrance).each { |lib| require lib }
+%w(./app/models sinatra/base sinatra/flash entrance).each { |lib| require lib }
 
 module Example
 
