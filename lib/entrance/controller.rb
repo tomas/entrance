@@ -110,7 +110,7 @@ module Entrance
 
     def set_remember_cookie
       values = {
-        :expires  => Entrance.config.remember_for.to_i.from_now,
+        :expires  => Time.now + Entrance.config.remember_for.to_i,
         :httponly => Entrance.config.cookie_httponly,
         :path     => Entrance.config.cookie_path,
         :secure   => Entrance.config.cookie_secure,

@@ -3,8 +3,6 @@ require 'entrance/model'
 require 'entrance/ciphers'
 require 'entrance/config'
 
-require 'active_support/core_ext/numeric/time'
-
 module Entrance
 
   def self.config
@@ -21,9 +19,8 @@ module Entrance
   end
 
   def self.generate_token(length = 40)
-    str = SecureRandom.hex(length/2)
-    return str unless str.respond_to?(:encode)
-    str.encode('UTF-8')
+    str = Digest::SHA1.hexdigest([Time.now, rand].join)
+    str[0..(length-1)]
   end
 
 end

@@ -89,7 +89,8 @@ module Entrance
       def request_password_reset!
         send(Entrance.config.reset_token_attr + '=', Entrance.generate_token)
         if Doorman.config.reset_until_attr
-          update_attribute(Entrance.config.reset_until_attr, Entrance.config.reset_password_window.from_now)
+          timestamp = Time.now + Entrance.config.reset_password_window
+          update_attribute(Entrance.config.reset_until_attr, timestamp)
         end
         if save(:validate => false)
           method = Entrance.config.reset_password_method
@@ -107,8 +108,8 @@ module Entrance
       end
 
       def update_remember_token_expiration!(until_date = nil)
-        seconds = (until_date || Entrance.config.remember_for).to_i
-        update_attribute(Entrance.config.remember_until_attr, seconds.from_now)
+        timestamp = Time.now + (until_date || Entrance.config.remember_for).to_i
+        update_attribute(Entrance.config.remember_until_attr, timestamp)
       end
 
       def forget_me!
