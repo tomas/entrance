@@ -30,10 +30,19 @@ module Entrance
 
       %w(remember reset).each do |what|
         if field = Entrance.config.send("#{what}_token_attr")
+          until_field = Entrance.config.send("#{what}_until_attr")
 
           unless fields.include?(field.to_sym)
             raise "No #{Entrance.config.send("#{what}_token_attr")} field found. \
                    Set the config.#{what}_token_attr option to nil to disable the #{what} option."
+          end
+
+          if until_field
+            unless fields.include?(until_field.to_sym)
+              raise "Couldn't find a #{Entrance.config.send("#{what}_until_attr")} field. Cannot continue."
+            end
+          else
+            puts "Disabling expiration timestamp for the #{what} option. This is a VERY bad idea."
           end
 
           Entrance.config.can?(what, true)
@@ -94,17 +103,17 @@ module Entrance
 
       def remember_me!(until_date = nil)
         update_attribute(Entrance.config.remember_token_attr, Entrance.generate_token)
-        update_remember_token_expiration!(until_date)
+        update_remember_token_expiration!(until_date) if Entrance.config.remember_until_attr
       end
 
       def update_remember_token_expiration!(until_date = nil)
-        timestamp = until_date || Entrance.config.remember_for
-        update_attribute(Entrance.config.remember_until_attr, timestamp.from_now)
+        seconds = (until_date || Entrance.config.remember_for).to_i
+        update_attribute(Entrance.config.remember_until_attr, seconds.from_now)
       end
 
       def forget_me!
         update_attribute(Entrance.config.remember_token_attr, nil)
-        update_attribute(Entrance.config.remember_until_attr, nil)
+        update_attribute(Entrance.config.remember_until_attr, nil) if Entrance.config.remember_until_attr
       end
 
     end
