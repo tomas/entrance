@@ -28,8 +28,8 @@ module Entrance
       @access_denied_message_key  = nil # e.g. 'messages.access_denied'
       @reset_password_mailer      = 'UserMailer'
       @reset_password_method      = 'reset_password_request'
-      @reset_password_window      = 1.hour
-      @remember_for               = 2.weeks
+      @reset_password_window      = 60 * 60 # 1.hour
+      @remember_for               = 60 * 24 * 14 # 2.weeks
       @cookie_domain              = nil
       @cookie_secure              = true
       @cookie_path                = '/'

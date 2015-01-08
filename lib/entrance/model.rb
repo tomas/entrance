@@ -1,30 +1,27 @@
-require 'active_support/concern'
-
 module Entrance
   module Model
-    extend ActiveSupport::Concern
 
-    included do
+    def self.included(base)
 
       # if the target model class does not have a Model.where() method, 
       # then login_by_session wont work, nor the ClassMethods below.
       # won't work so we cannot continue.
-      unless respond_to?(:where)
-        raise "#{Entrance.config.model} does not have a class .where() method. Cannot continue."
+      unless base.respond_to?(:where)
+        raise "#{base.name} does not have a .where() class method. Cannot continue."
       end
 
-      fields = if self.respond_to?(:columns)   # ActiveRecord::Base
-        self.columns.collect(&:name)
-      elsif self.respond_to?(:keys)            # MongoMapper::Document
-        self.keys.keys
+      fields = if base.respond_to?(:columns)   # ActiveRecord::Base
+        base.columns.collect(&:name)
+      elsif base.respond_to?(:keys)            # MongoMapper::Document
+        base.keys.keys
       else                                     # just get setters in the class
-        self.instance_methods(false).select { |m| m[/\=$/] }.map { |s| s.sub('=', '') }
+        base.instance_methods(false).select { |m| m[/\=$/] }.map { |s| s.sub('=', '') }
       end.map { |el| el.to_sym }
 
       %w(username_attr password_attr).each do |key|
         field = Entrance.config.send(key)
         unless fields.include?(field.to_sym)
-          raise "Couldn't find '#{field}' in #{Entrance.config.model} model." 
+          raise "Couldn't find '#{field}' in #{base.name} model." 
         end
       end
 
@@ -46,16 +43,17 @@ module Entrance
           end
 
           Entrance.config.can?(what, true)
-          include what.to_sym == :remember ? RememberMethods : ResetMethods
+          base.include what.to_sym == :remember ? RememberMethods : ResetMethods
         end
       end
 
-      if respond_to?(:validates)
-        validates :password, :presence => true, :length => 6..32, :if => :password_required?
-        validates :password, :confirmation => true, :if => :password_required?
-        validates :password_confirmation, :presence => true, :if => :password_required?
+      if base.respond_to?(:validates)
+        base.validates :password, :presence => true, :length => 6..32, :if => :password_required?
+        base.validates :password, :confirmation => true, :if => :password_required?
+        base.validates :password_confirmation, :presence => true, :if => :password_required?
       end
 
+      base.extend(ClassMethods)
     end
 
     module ClassMethods
