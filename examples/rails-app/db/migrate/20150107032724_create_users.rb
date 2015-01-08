@@ -4,7 +4,7 @@ class CreateUsers < ActiveRecord::Migration
       t.string :name
 
       # email/password
-      t.string :email, :unique => true
+      t.string :email
       t.string :password_hash
 
       # 'remember me' support
@@ -17,5 +17,9 @@ class CreateUsers < ActiveRecord::Migration
 
       t.timestamps
     end
+
+    add_index :users, :email, :unique => true
+    add_index :users, :remember_token
+    add_index :users, :reset_token
   end
 end
