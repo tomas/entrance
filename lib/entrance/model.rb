@@ -15,7 +15,7 @@ module Entrance
       elsif base.respond_to?(:keys)            # MongoMapper::Document
         base.keys.keys
       else                                     # just get setters in the class
-        base.instance_methods(false).select { |m| m[/\=$/] }.map { |s| s.sub('=', '') }
+        base.instance_methods(false).select { |m| m[/\=$/] }.map { |s| s.to_s.sub('=', '') }
       end.map { |el| el.to_sym }
 
       %w(username_attr password_attr).each do |key|
