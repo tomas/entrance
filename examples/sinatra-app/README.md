@@ -1,4 +1,4 @@
-== Example Sinatra App with Entrance
+## Example Sinatra App with Entrance
 
 A quick example that shows how to use Entrance with a Sinatra modular app. Requires MongoDB.
 
