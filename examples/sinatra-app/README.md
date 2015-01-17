@@ -7,6 +7,6 @@ To run:
     git clone https://github.com/tomas/entrance
     cd entrance/examples/sinatra-app
     bundle install
-    foreman start
+    bundle exec puma
 
-And ready-o. Then point your browser to localhost:5000 and sign up, then sign in using your credentials.
+And ready-o. Then point your browser to localhost:9292 and sign up, then sign in using your credentials.
