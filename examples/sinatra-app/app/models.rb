@@ -14,6 +14,7 @@ end
 
 class User
   include MongoMapper::Document
+  include Entrance::Model
 
   key :state, :default => 'active'
 
@@ -27,7 +28,7 @@ class User
   key :reset_token
   key :reset_token_expires_at, Time
 
-  include Entrance::Model # needs to be included after the properties are declared
+  validate_entrance! # ensures everything is in order, and sets up password validations
 
   def active?
     state.to_sym == :active
