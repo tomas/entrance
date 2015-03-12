@@ -3,7 +3,7 @@ module Entrance
 
     def self.included(base)
 
-      # if the target model class does not have a Model.where() method, 
+      # if the target model class does not have a Model.where() method,
       # then login_by_session wont work, nor the ClassMethods below.
       # won't work so we cannot continue.
       unless base.respond_to?(:where)
@@ -21,7 +21,7 @@ module Entrance
       %w(username_attr password_attr).each do |key|
         field = Entrance.config.send(key)
         unless fields.include?(field.to_sym)
-          raise "Couldn't find '#{field}' in #{base.name} model." 
+          raise "Couldn't find '#{field}' in #{base.name} model."
         end
       end
 
@@ -43,7 +43,7 @@ module Entrance
           end
 
           Entrance.config.can?(what, true)
-          base.include what.to_sym == :remember ? RememberMethods : ResetMethods
+          base.send(:include, what.to_sym == :remember ? RememberMethods : ResetMethods)
         end
       end
 
