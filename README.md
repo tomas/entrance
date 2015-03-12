@@ -35,7 +35,9 @@ end
 class User
   include Entrance::Model
 
-  ...
+  ... (setup fields)
+  
+  validate_entrance! # ensures fields for authentication/remember/reset are present
 end
 ```
 
@@ -125,15 +127,17 @@ And the following helpers:
 
 Provides:
 
+ - .validate_entrance!
  - .authenticate(username, password)
- - #remember_me! and #forget_me!
+ - .with_password_reset_token(token)
  - #password and #password=(value)
- - #request_password_reset!
+ - #remember_me! and #forget_me!  (unless remember_attr is set to nil)
+ - #request_password_reset! (unless reset_attr is set to nil)
 
 Examples
 ========
 
-Thought you might ask. There's a full example Rails app in the examples folder. Check it out. 
+Thought you might ask. There's a full example Rails app and a Sinatra app in the examples folder. Check them out. 
  
 Author
 ======
