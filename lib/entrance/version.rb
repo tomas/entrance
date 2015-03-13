@@ -1,7 +1,7 @@
 module Entrance
   MAJOR = 0
   MINOR = 3
-  PATCH = 1
+  PATCH = 2
 
   VERSION = [MAJOR, MINOR, PATCH].join('.')
 end
