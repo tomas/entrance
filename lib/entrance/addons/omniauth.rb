@@ -44,16 +44,15 @@ module Entrance
         app.send(:include, Entrance::Controller) # provides redirects, etc
 
         app.use ::OmniAuth::Builder do
-          # this is run after the app has initialized, so it's safe to use it here.
+          # this is run only once after the app has initialized, so it's safe to set it here.
           if app.settings.respond_to?(:auth_test)
             ::OmniAuth.config.test_mode = true if app.settings.auth_test?
           end
 
           app.settings.auth_providers.each do |name, options|
             # puts "Initializing #{name} provider: #{options.inspect}"
-            # omniauth expects provider(:name, arg1, arg2, arg3), so we need to map only the values
-            opts = options && options.any? ? options.values : []
-            provider(name, *opts)
+            opts = options || {}
+            provider(name, opts[:key], opts[:secret], opts[:extra] || {})
           end
         end
 

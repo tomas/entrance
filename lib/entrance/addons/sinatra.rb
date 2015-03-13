@@ -1,4 +1,26 @@
 require 'entrance'
+require 'erb'
+
+=begin
+
+Simple login/signup support for sinatra. This extension
+expects a login.erb and a signup.erb (unless disabled) to
+be present in a views/public directory.
+
+Once a user logs in, he or she will be redirected to /.
+
+require 'sinatra/base'
+require 'entrance/sinatra'
+
+class Hello < Sinatra::Base
+  register Entrance::Sinatra
+
+  before do
+    login_required :except => ['/login', '/signup'] # or just /login if you don't want signups
+  end
+end
+
+=end
 
 module Entrance
 
