@@ -20,18 +20,8 @@ module Entrance
       @secret                     = nil
       @stretches                  = 10
 
-      # fields
-      @salt_attr                  = nil
-      @unique_key                 = 'id'
-      @username_attr              = 'email'
-      @password_attr              = 'password_hash'
-      @remember_token_attr        = 'remember_token'
-      @remember_until_attr        = 'remember_token_expires_at'
-      @reset_token_attr           = 'reset_token'
-      @reset_until_attr           = 'reset_token_expires_at'
-
       # access denied
-      @access_denied_redirect_to  = '/'
+      @access_denied_redirect_to  = '/login'
       @access_denied_message_key  = nil # e.g. 'messages.access_denied'
 
       # reset password
@@ -45,11 +35,6 @@ module Entrance
       @cookie_secure              = true
       @cookie_path                = '/'
       @cookie_httponly            = false
-
-      # for omniauth support
-      @name_attr                  = 'name'
-      @auth_provider_attr         = 'auth_provider'
-      @auth_uid_attr              = 'auth_uid'
     end
 
     def validate!

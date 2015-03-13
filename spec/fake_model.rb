@@ -1,15 +1,7 @@
 require 'entrance'
 
 Entrance.configure do |config|
-  config.model         = 'FakeUser'
-  config.unique_key    = 'email'
-  config.username_attr = 'email'
-  config.password_attr = 'password'
 
-  # disabling reset password and remember options
-  config.reset_token_attr    = nil
-  config.remember_token_attr = nil
-  # config.cookie_secure       = false
 
   config.access_denied_redirect_to = '/login'
 end
@@ -18,6 +10,7 @@ end
 # admin user model
 
 class FakeUser
+  include Entrance::Model
   attr_accessor :email, :password #, :remember_token
 
   USERS = {
@@ -47,6 +40,14 @@ class FakeUser
     password == string
   end
 
-  include Entrance::Model # ensure after we declare the .where method
+  provides_entrance do |fields|
+    fields.unique_key  = 'email'
+    fields.username    = 'email'
+    fields.password    = 'password'
+
+    # disabling reset password and remember options
+    fields.reset_token    = nil
+    fields.remember_token = nil
+  end
 
 end

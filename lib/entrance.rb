@@ -2,6 +2,7 @@ require 'entrance/controller'
 require 'entrance/model'
 require 'entrance/ciphers'
 require 'entrance/config'
+require 'entrance/fields'
 require 'digest/sha1'
 
 module Entrance
@@ -10,13 +11,17 @@ module Entrance
     @config ||= Config.new
   end
 
+  def self.model
+    @model ||= Kernel.const_get(config.model)
+  end
+
+  def self.fields
+    @fields ||= Fields.new
+  end
+
   def self.configure
     yield config
     config.validate!
-  end
-
-  def self.model
-    @model ||= Kernel.const_get(config.model)
   end
 
   def self.generate_token(length = 40)

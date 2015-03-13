@@ -50,7 +50,7 @@ module Entrance
     # new_user may be nil (when logging out) or an instance of the Entrance.model class
     def current_user=(new_user)
       raise "Invalid user: #{new_user}" unless new_user.nil? or new_user.is_a?(Entrance.model)
-      session[:user_id] = new_user ? new_user.send(Entrance.config.unique_key) : nil
+      session[:user_id] = new_user ? new_user.send(Entrance.fields.unique_key) : nil
       @current_user = new_user # should be nil when logging out
     end
 
@@ -78,7 +78,7 @@ module Entrance
 
     def login_from_session
       query = {}
-      query[Entrance.config.unique_key] = session[:user_id]
+      query[Entrance.fields.unique_key] = session[:user_id]
       self.current_user = Entrance.model.where(query).first if session[:user_id]
     end
 
@@ -86,9 +86,9 @@ module Entrance
       return unless Entrance.config.can?(:remember) && request.cookies[REMEMBER_ME_TOKEN]
 
       query = {}
-      query[Entrance.config.remember_token_attr] = request.cookies[REMEMBER_ME_TOKEN]
+      query[Entrance.fields.remember_token] = request.cookies[REMEMBER_ME_TOKEN]
       if user = Entrance.model.where(query).first \
-        and user.send(Entrance.config.remember_until_attr) > Time.now
+        and user.send(Entrance.fields.remember_until) > Time.now
           self.current_user = user
           # user.update_remember_token_expiration!
           user

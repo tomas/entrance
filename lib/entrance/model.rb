@@ -2,56 +2,24 @@ module Entrance
   module Model
 
     def self.included(base)
-
-      # if the target model class does not have a Model.where() method,
-      # then login_by_session wont work, nor the ClassMethods below.
-      # won't work so we cannot continue.
-      unless base.respond_to?(:where)
-        raise "#{base.name} does not have a .where() finder class method. Cannot continue."
-      end
-
       base.extend(ClassMethods)
     end
 
     module ClassMethods
 
-      def validate_entrance!
-        fields = if self.respond_to?(:columns)   # ActiveRecord::Base
-          columns.collect(&:name)
-        elsif self.respond_to?(:keys)            # MongoMapper::Document
-          keys.keys
-        else                                     # just get setters in the class
-          instance_methods(false).select { |m| m[/\=$/] }.map { |s| s.to_s.sub('=', '') }
-        end.map { |el| el.to_sym }
+      def provides_entrance(&block)
+        Entrance.config.model = self.name
 
-        %w(username_attr password_attr).each do |key|
-          field = Entrance.config.send(key)
-          unless fields.include?(field.to_sym)
-            raise "Couldn't find '#{field}' in #{self.name} model."
-          end
+        # if the target model class does not have a Model.where() method,
+        # then login_by_session wont work, nor the ClassMethods below.
+        # won't work so we cannot continue.
+        unless self.respond_to?(:where)
+          raise "#{self.name} does not have a .where() finder class method. Cannot continue."
         end
 
-        %w(remember reset).each do |what|
-          if field = Entrance.config.send("#{what}_token_attr")
-            until_field = Entrance.config.send("#{what}_until_attr")
-
-            unless fields.include?(field.to_sym)
-              raise "No #{Entrance.config.send("#{what}_token_attr")} field found. \
-                     Set the config.#{what}_token_attr option to nil to disable the #{what} option."
-            end
-
-            if until_field
-              unless fields.include?(until_field.to_sym)
-                raise "Couldn't find a #{Entrance.config.send("#{what}_until_attr")} field. Cannot continue."
-              end
-            else
-              puts "Disabling expiration timestamp for the #{what} option. This is a VERY bad idea."
-            end
-
-            Entrance.config.can?(what, true)
-            self.send(:include, what.to_sym == :remember ? RememberMethods : ResetMethods)
-          end
-        end
+        fields = Entrance.fields
+        yield fields if block_given?
+        fields.validate!
 
         if self.respond_to?(:validates)
           validates :password, :presence => true, :length => 6..32, :if => :password_required?
@@ -64,7 +32,7 @@ module Entrance
         return if [username, password].any? { |v| v.nil? || v.strip == '' }
 
         query = {}
-        query[Entrance.config.username_attr] = username.to_s.downcase.strip
+        query[Entrance.fields.username] = username.to_s.downcase.strip
         if u = where(query).first
           return u.authenticated?(password) ? u : nil
         end
@@ -75,9 +43,9 @@ module Entrance
         return if token.nil?
 
         query = {}
-        query[Entrance.config.reset_token_attr] = token.to_s.strip
+        query[Entrance.fields.reset_token] = token.to_s.strip
         if u = where(query).first \
-          and (!Doorman.config.reset_until_attr || u.send(Doorman.config.reset_until_attr) > Time.now)
+          and (!Entrance.fields.reset_until || u.send(Entrance.fields.reset_until) > Time.now)
             return u
         end
       end
@@ -87,10 +55,10 @@ module Entrance
     module ResetMethods
 
       def request_password_reset!
-        send(Entrance.config.reset_token_attr + '=', Entrance.generate_token)
-        if Doorman.config.reset_until_attr
+        send(Entrance.fields.reset_token + '=', Entrance.generate_token)
+        if Entrance.fields.reset_until
           timestamp = Time.now + Entrance.config.reset_password_window
-          update_attribute(Entrance.config.reset_until_attr, timestamp)
+          update_attribute(Entrance.fields.reset_until, timestamp)
         end
         if save(:validate => false)
           method = Entrance.config.reset_password_method
@@ -104,19 +72,19 @@ module Entrance
 
       def remember_me!(until_date = nil)
         token = Entrance.generate_token
-        update_attribute(Entrance.config.remember_token_attr, token) or return
-        update_remember_token_expiration!(until_date) if Entrance.config.remember_until_attr
+        update_attribute(Entrance.fields.remember_token, token) or return
+        update_remember_token_expiration!(until_date) if Entrance.fields.remember_until
         token
       end
 
       def update_remember_token_expiration!(until_date = nil)
         timestamp = Time.now + (until_date || Entrance.config.remember_for).to_i
-        update_attribute(Entrance.config.remember_until_attr, timestamp)
+        update_attribute(Entrance.fields.remember_until, timestamp)
       end
 
       def forget_me!
-        update_attribute(Entrance.config.remember_token_attr, nil)
-        update_attribute(Entrance.config.remember_until_attr, nil) if Entrance.config.remember_until_attr
+        update_attribute(Entrance.fields.remember_token, nil)
+        update_attribute(Entrance.fields.remember_until, nil) if Entrance.fields.remember_until
       end
 
     end
@@ -136,18 +104,18 @@ module Entrance
       @password_changed = true
 
       # if we're using salt and it is empty, generate one
-      if Entrance.config.salt_attr \
-        and send(Entrance.config.salt_attr).nil?
-          self.send(Entrance.config.salt_attr + '=', Entrance.generate_token)
+      if Entrance.fields.salt \
+        and send(Entrance.fields.salt).nil?
+          self.send(Entrance.fields.salt + '=', Entrance.generate_token)
       end
 
-      self.send(Entrance.config.password_attr + '=', encrypt_password(new_password))
+      self.send(Entrance.fields.password + '=', encrypt_password(new_password))
     end
 
     private
 
     def read_password
-      send(Entrance.config.password_attr)
+      send(Entrance.fields.password)
     end
 
     def encrypt_password(string)
@@ -155,7 +123,7 @@ module Entrance
     end
 
     def get_salt
-      Entrance.config.salt_attr && send(Entrance.config.salt_attr)
+      Entrance.fields.salt && send(Entrance.fields.salt)
     end
 
     def password_required?

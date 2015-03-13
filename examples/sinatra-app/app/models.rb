@@ -28,7 +28,7 @@ class User
   key :reset_token
   key :reset_token_expires_at, Time
 
-  validate_entrance! # ensures everything is in order, and sets up password validations
+  provides_entrance
 
   def active?
     state.to_sym == :active

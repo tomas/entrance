@@ -43,6 +43,8 @@ module Example
     post '/login' do
       if user = User.authenticate(params[:email], params[:password]) and user.active?
         remember = ['on', '1'].include?(params[:remember_me])
+
+        puts user.inspect
         login!(user, remember)
 
         flash[:success] = 'Welcome back!'
