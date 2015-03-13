@@ -103,8 +103,10 @@ module Entrance
     module RememberMethods
 
       def remember_me!(until_date = nil)
-        update_attribute(Entrance.config.remember_token_attr, Entrance.generate_token)
+        token = Entrance.generate_token
+        update_attribute(Entrance.config.remember_token_attr, token) or return
         update_remember_token_expiration!(until_date) if Entrance.config.remember_until_attr
+        token
       end
 
       def update_remember_token_expiration!(until_date = nil)

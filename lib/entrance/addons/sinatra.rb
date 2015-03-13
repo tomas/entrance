@@ -27,7 +27,7 @@ module Entrance
       end
 
       app.get '/logout' do
-        kill_session!
+        logout!
         redirect_with('/login', :notice, 'Logged out! See you soon.')
       end
 

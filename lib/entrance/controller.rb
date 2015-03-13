@@ -58,8 +58,8 @@ module Entrance
       Entrance.config.permit!(:remember)
 
       if remember_me
-        current_user.remember_me!
-        set_remember_cookie
+        token = current_user.remember_me!
+        set_remember_cookie(token) if token
       else
         current_user.forget_me!
         delete_remember_cookie
@@ -109,13 +109,13 @@ module Entrance
       common_redirect(request.env['HTTP_REFERER'] || default_path)
     end
 
-    def set_remember_cookie
+    def set_remember_cookie(token)
       values = {
         :expires  => Time.now + Entrance.config.remember_for.to_i,
         :httponly => Entrance.config.cookie_httponly,
         :path     => Entrance.config.cookie_path,
         :secure   => Entrance.config.cookie_secure,
-        :value    => current_user.send(Entrance.config.remember_token_attr)
+        :value    => token
       }
       values[:domain] = Entrance.config.cookie_domain if Entrance.config.cookie_domain
 
@@ -164,7 +164,7 @@ module Entrance
       if Entrance.config.access_denied_message_key
         flash[:notice] = I18n.t(Entrance.config.access_denied_message_key)
       else
-        flash[:notice] = 'Access denied.'
+        flash[:notice] = 'Please log in first.'
       end
     end
 
