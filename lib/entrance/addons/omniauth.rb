@@ -51,7 +51,8 @@ module Entrance
 
           app.settings.auth_providers.each do |name, options|
             # puts "Initializing #{name} provider: #{options.inspect}"
-            opts = options.any? ? options.values : [] # omniauth expects provider :name, arg1, arg2, arg3
+            # omniauth expects provider(:name, arg1, arg2, arg3), so we need to map only the values
+            opts = options && options.any? ? options.values : []
             provider(name, *opts)
           end
         end
