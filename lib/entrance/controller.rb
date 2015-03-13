@@ -1,7 +1,7 @@
 module Entrance
 
   module Controller
-    
+
     REMEMBER_ME_TOKEN = 'auth_token'.freeze
 
     def self.included(base)
@@ -151,6 +151,11 @@ module Entrance
       else # rails
         render :nothing => true, :status => 401
       end
+    end
+
+    def redirect_with(url, type, message)
+      flash[type] = message if respond_to?(:flash)
+      common_redirect(url)
     end
 
     def set_flash_message

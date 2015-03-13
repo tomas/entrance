@@ -1,19 +1,12 @@
 require 'entrance'
 
-module Sinatra
+module Entrance
 
-  module Entrance
+  module Sinatra
 
     def self.registered(app)
 
       app.include ::Entrance::Controller
-
-      app.helpers do
-        def redirect_with(url, type, message)
-          flash[type] = message if respond_to?(:flash)
-          redirect(to(url))
-        end
-      end
 
       app.get '/login' do
         if logged_in?
