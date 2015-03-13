@@ -71,6 +71,10 @@ module Entrance
             end
           end
 
+          app.get '/auth/failure' do
+            redirect_with('/', :error, params[:message])
+          end
+
         end # get, post
 
       end # registered

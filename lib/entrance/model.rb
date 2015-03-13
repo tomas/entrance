@@ -27,7 +27,7 @@ module Entrance
         %w(username_attr password_attr).each do |key|
           field = Entrance.config.send(key)
           unless fields.include?(field.to_sym)
-            raise "Couldn't find '#{field}' in #{base.name} model."
+            raise "Couldn't find '#{field}' in #{self.name} model."
           end
         end
 
