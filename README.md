@@ -13,10 +13,9 @@ Clean, adaptable authentication library for Rails and Sinatra.
 require 'entrance'
 
 Entrance.configure do |config|
-  config.username_attr             = 'email'
-  config.password_attr             = 'password_hash' # make sure you map the right attribute name
-  config.access_denied_message_key = 'messages.access_denied'
+  config.access_denied_redirect_to = '/login'
   config.remember_for              = 1.month
+  config.reset_password_window     = 2.hours
   config.cookie_secure             = Rails.env.production?
 end
 
@@ -37,7 +36,10 @@ class User
 
   ... (setup fields)
   
-  validate_entrance! # ensures fields for authentication/remember/reset are present
+  provides_entrance do |fields|
+    fields.username = :email
+    fields.password = :password
+  end
 end
 ```
 
@@ -84,27 +86,53 @@ All available options, along with their defaults.
 
 ``` rb
 Entrance.configure do |config|
-  config.model                      = 'User'
+  # strategies
   config.cipher                     = Entrance::Ciphers::BCrypt # can also be Entrance::Ciphers::SHA1
   config.secret                     = nil
   config.stretches                  = 10
-  config.salt_attr                  = nil
-  config.username_attr              = 'email'
-  config.password_attr              = 'password_hash'
-  config.remember_token_attr        = 'remember_token'
-  config.remember_until_attr        = 'remember_token_expires_at'
-  config.reset_token_attr           = 'reset_token'
-  config.reset_until_attr           = 'reset_token_expires_at'
-  config.access_denied_redirect_to  = '/'
-  config.access_denied_message_key  = nil
+
+  # access denied
+  config.access_denied_redirect_to  = '/login'
+  config.access_denied_message_key  = nil # e.g. 'messages.access_denied'
+
+  # reset password
   config.reset_password_mailer      = 'UserMailer'
   config.reset_password_method      = 'reset_password_request'
-  config.reset_password_window      = 1.hour
-  config.remember_for               = 2.weeks
+  config.reset_password_window      = 60 * 60 # 1.hour
+
+  # remember me & cookies
+  config.remember_for               = 60 * 24 * 14 # 2.weeks
   config.cookie_domain              = nil
   config.cookie_secure              = true
   config.cookie_path                = '/'
   config.cookie_httponly            = false
+end
+```
+
+## Entrance::Fields
+
+As declared in your model. Options and their defaults are:
+
+``` rb
+provides_entrance do |fields|
+  # base
+  fields.unique_key      = 'id' 
+  fields.salt            = nil # only required for SHA1 strategy
+
+  # username & password
+  fields.name            = 'name' # only used by omniauth addon
+  fields.username        = 'email'
+  fields.password        = 'password_hash'
+
+  # remember and reset
+  fields.remember_token  = 'remember_token'
+  fields.remember_until  = 'remember_token_expires_at'
+  fields.reset_token     = 'reset_token'
+  fields.reset_until     = 'reset_token_expires_at'
+
+  # omniauth
+  fields.auth_provider   = 'auth_provider'
+  fields.auth_uid        = 'auth_uid'
 end
 ```
 
@@ -127,7 +155,7 @@ And the following helpers:
 
 Provides:
 
- - .validate_entrance!
+ - .provides_entrance(&block)
  - .authenticate(username, password)
  - .with_password_reset_token(token)
  - #password and #password=(value)
