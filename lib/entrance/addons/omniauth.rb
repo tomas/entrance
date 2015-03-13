@@ -176,7 +176,4 @@ module Entrance
 
   end
 
-  # this will only affect Sinatra::Application
-  Sinatra.register OmniAuth
-
 end
