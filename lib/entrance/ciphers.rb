@@ -14,7 +14,7 @@ module Entrance
       # same logic as restful authentication
       def self.encrypt(password, salt)
         digest = Entrance.config.secret
-        raise "Secret not set!" if digest.blank?
+        raise "Secret not set!" if digest.nil? or digest.strip == ''
 
         Entrance.config.stretches.times do
           str = [digest, salt, password, Entrance.config.secret].join(JOIN_STRING)

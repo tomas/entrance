@@ -130,19 +130,11 @@ module Entrance
     # compat stuff between rails & sinatra
 
     def set_cookie!(name, cookie)
-      if respond_to?(:cookie)
-        cookies[name] = cookie
-      else
-        response.set_cookie(name, cookie)
-      end
+      response.set_cookie(name, cookie)
     end
 
     def delete_cookie!(name)
-      if respond_to?(:cookie)
-        cookies.delete(name)
-      else
-        response.delete_cookie(name)
-      end
+      response.delete_cookie(name)
     end
 
     def return_401
@@ -153,11 +145,6 @@ module Entrance
       end
     end
 
-    def redirect_with(url, type, message)
-      flash[type] = message if respond_to?(:flash)
-      common_redirect(url)
-    end
-
     def set_flash_message
       return unless respond_to?(:flash)
 
@@ -166,6 +153,11 @@ module Entrance
       else
         flash[:notice] = 'Please log in first.'
       end
+    end
+
+    def redirect_with(url, type, message)
+      flash[type] = message if respond_to?(:flash)
+      common_redirect(url)
     end
 
     # when redirecting to stored_path

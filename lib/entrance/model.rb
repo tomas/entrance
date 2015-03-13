@@ -61,7 +61,7 @@ module Entrance
       end
 
       def authenticate(username, password)
-        return if username.blank? or password.blank?
+        return if [username, password].any? { |v| v.nil? || v.strip == '' }
 
         query = {}
         query[Entrance.config.username_attr] = username.to_s.downcase.strip
@@ -72,7 +72,7 @@ module Entrance
 
       def with_password_reset_token(token)
         Entrance.config.permit!(:reset)
-        return if token.blank?
+        return if token.nil?
 
         query = {}
         query[Entrance.config.reset_token_attr] = token.to_s.strip
@@ -130,14 +130,14 @@ module Entrance
     end
 
     def password=(new_password)
-      return if new_password.blank?
+      return if new_password.nil?
 
       @password = new_password # for validation
       @password_changed = true
 
       # if we're using salt and it is empty, generate one
       if Entrance.config.salt_attr \
-        and send(Entrance.config.salt_attr).blank?
+        and send(Entrance.config.salt_attr).nil?
           self.send(Entrance.config.salt_attr + '=', Entrance.generate_token)
       end
 
@@ -159,7 +159,7 @@ module Entrance
     end
 
     def password_required?
-      password.blank? || @password_changed
+      password.nil? || @password_changed
     end
 
   end

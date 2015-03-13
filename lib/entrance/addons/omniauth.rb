@@ -36,7 +36,7 @@ module Entrance
           end
 
           def password_required?
-            !via_omniauth? && (password.blank? || @password_changed)
+            !via_omniauth? && (password.nil? || @password_changed)
           end
 
         end

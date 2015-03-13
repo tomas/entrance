@@ -7,6 +7,7 @@ To run:
     git clone https://github.com/tomas/entrance
     cd entrance/examples/sinatra-app
     bundle install
+    # (start mongo, eg 'mongodb --dbpath=/var/lib/mongodb')
     bundle exec puma
 
 And ready-o. Then point your browser to localhost:9292 and sign up, then sign in using your credentials.

@@ -16,7 +16,7 @@ module Entrance
   end
 
   def self.model
-    @model ||= config.model.constantize
+    @model ||= Kernel.const_get(config.model)
   end
 
   def self.generate_token(length = 40)
