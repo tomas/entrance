@@ -41,11 +41,13 @@ module Entrance
 
         end
 
-        app.include ::Entrance::Controller # provides redirects, etc
+        app.send(:include, Entrance::Controller) # provides redirects, etc
 
         app.use ::OmniAuth::Builder do
           # this is run after the app has initialized, so it's safe to use it here.
-          ::OmniAuth.config.test_mode = true if app.settings.auth_test?
+          if app.settings.respond_to?(:auth_test)
+            ::OmniAuth.config.test_mode = true if app.settings.auth_test?
+          end
 
           app.settings.auth_providers.each do |name, options|
             # puts "Initializing #{name} provider: #{options.inspect}"
@@ -71,11 +73,11 @@ module Entrance
             end
           end
 
-          app.get '/auth/failure' do
-            redirect_with('/', :error, params[:message])
-          end
-
         end # get, post
+
+        app.get '/auth/failure' do
+          redirect_with('/', :error, params[:message])
+        end
 
       end # registered
 
@@ -95,9 +97,8 @@ module Entrance
       end
 
       def can_authenticate_with?(service)
-        return true if OmniAuth.config.test_mode and service.to_sym == :default
-
-        options.auth_providers.keys.map(&:to_sym).include?(service.to_sym)
+        return true if ::OmniAuth.config.test_mode and service.to_sym == :default
+        settings.auth_providers.keys.map(&:to_sym).include?(service.to_sym)
       end
 
       def find_user_with_username(username)

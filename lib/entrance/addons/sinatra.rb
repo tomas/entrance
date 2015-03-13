@@ -6,7 +6,7 @@ module Entrance
 
     def self.registered(app)
 
-      app.include ::Entrance::Controller
+      app.send(:include, ::Entrance::Controller)
 
       app.get '/login' do
         if logged_in?
