@@ -51,7 +51,8 @@ module Entrance
 
           app.settings.auth_providers.each do |name, options|
             # puts "Initializing #{name} provider: #{options.inspect}"
-            provider(name, options)
+            opts = options.any? ? options.values : [] # omniauth expects provider :name, arg1, arg2, arg3
+            provider(name, *opts)
           end
         end
 
