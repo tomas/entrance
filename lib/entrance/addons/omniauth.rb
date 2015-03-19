@@ -157,7 +157,7 @@ module Entrance
         else # no user with that provider/uid found
           name, email = info['name'], info['email']
 
-          if email.present? and user = find_user_with_email(email)
+          if email.present? and user = find_user_with_username(email)
 
             # if using different provider, it will update it
             log "Found user, but with different credentials."
