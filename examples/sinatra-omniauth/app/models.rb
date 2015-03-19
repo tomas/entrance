@@ -4,12 +4,11 @@ require 'mongo_mapper'
 require 'entrance'
 
 MongoMapper.connection = Mongo::Connection.new('localhost')
-MongoMapper.database   = 'entrance-omniauth-example'
+MongoMapper.database   = 'entrance-example'
 
 Entrance.configure do |config|
   config.remember_for  = 1.month
   config.cookie_secure = false # for testing
-  config.access_denied_redirect_to = '/login'
 end
 
 class User
@@ -19,16 +18,13 @@ class User
   key :state, :default => 'active'
 
   key :name
-  key :email, :unique => true
-  key :password_hash
+  key :auth_provider, String
+  key :auth_uid, String
 
   key :remember_token
   key :remember_token_expires_at, Time
 
-  key :reset_token
-  key :reset_token_expires_at, Time
-
-  provides_entrance
+  provides_entrance :local => false
 
   def active?
     state.to_sym == :active

@@ -1,0 +1,26 @@
+<!doctype html>
+<html xml:lang="en" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <title>Example Entrance App</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+</head>
+
+<body>
+
+<div id="container" class="clearfix">
+
+  <% [:error, :notice, :success].each do |msg| %>
+    <% if flash && flash[msg] %>
+    <%= "<div class='alert alert-#{msg}'>#{flash[msg]}</div>" %>
+    <% end %>
+  <% end %>
+
+  <%= yield %>
+
+</div>
+
+</body>
+</html>

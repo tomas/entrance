@@ -5,13 +5,14 @@ require 'omniauth'
 
 require 'sinatra/base'
 require 'omniauth-twitter'
-require 'entrance/omniauth'
+require 'entrance/addons/omniauth'
 
 class Hello < Sinatra::Base
   register Entrance::OmniAuth
 
-  set :auth_test, false # only true for testing
-  set :auth_providers {
+  set :auth_test, false    # only true for testing
+  set :auth_remember, true # enables 'remember me' for omniauth logins
+  set :auth_providers, {
     :twitter => {
       :key => 'foobar'
     }
@@ -26,13 +27,17 @@ module Entrance
 
     class << self
 
+      def providers
+        @providers ||= []
+      end
+
       def registered(app)
 
         ::Entrance.model.class_eval do
 
           def via_omniauth?
-            send(::Entrance.config.auth_provider_attr).present? \
-              && send(::Entrance.config.auth_uid_attr).present?
+            send(::Entrance.fields.auth_provider).present? \
+              && send(::Entrance.fields.auth_uid).present?
           end
 
           def password_required?
@@ -53,6 +58,9 @@ module Entrance
             # puts "Initializing #{name} provider: #{options.inspect}"
             opts = options || {}
             provider(name, opts[:key], opts[:secret], opts[:extra] || {})
+
+            app.allow_paths.push("/auth/#{name}/callback")
+            ::Entrance::OmniAuth.providers.push(name.to_sym)
           end
         end
 
@@ -66,19 +74,21 @@ module Entrance
             user = ::Entrance::OmniAuth.auth_or_create(auth) or return return_401
 
             if ::Entrance::OmniAuth.valid_user?(user)
-              login!(user)
+              login!(user, app.settings.auth_remember)
               flash[:success] = 'Welcome back!' if respond_to?(:flash)
               redirect_to_stored_or(to('/'))
             else
-              redirect_with('/', :error, 'Unable to authenticate. Please try again.')
+              redirect_with(Entrance.config.access_denied_redirect_to, :error, 'Unable to authenticate. Please try again.')
             end
           end
 
         end # get, post
 
         app.get '/auth/failure' do
-          redirect_with('/', :error, params[:message])
+          redirect_with(Entrance.config.access_denied_redirect_to, :error, params[:message])
         end
+
+        app.allow_paths.push("/auth/failure")
 
       end # registered
 
@@ -87,7 +97,7 @@ module Entrance
       end
 
       def log(str)
-        logger.info(str)
+        logger.info(str) rescue nil
       end
 
       def valid_user?(user)
@@ -99,25 +109,25 @@ module Entrance
 
       def can_authenticate_with?(service)
         return true if ::OmniAuth.config.test_mode and service.to_sym == :default
-        settings.auth_providers.keys.map(&:to_sym).include?(service.to_sym)
+        ::Entrance::OmniAuth.providers.include?(service.to_sym)
       end
 
       def find_user_with_username(username)
         query = {}
-        query[::Entrance.config.username_attr] = username # .to_s.downcase.strip
+        query[::Entrance.fields.username] = username # .to_s.downcase.strip
         ::Entrance.model.where(query).first
       end
 
       def find_user_with_provider_and_uid(provider, uid)
         query = {}
-        query[::Entrance.config.auth_provider_attr] = provider
-        query[::Entrance.config.auth_uid_attr] = uid
+        query[::Entrance.fields.auth_provider] = provider
+        query[::Entrance.fields.auth_uid] = uid
         ::Entrance.model.where(query).first
       end
 
       def set_auth_credentials(user, provider, uid)
-        user[::Entrance.config.auth_provider_attr] = provider
-        user[::Entrance.config.auth_uid_attr] = uid
+        user[::Entrance.fields.auth_provider] = provider
+        user[::Entrance.fields.auth_uid] = uid
       end
 
       def store_auth_credentials(user, provider, uid)
@@ -127,8 +137,8 @@ module Entrance
 
       def create_user(name, email, provider, uid)
         data = {}
-        data[::Entrance.config.name_attr] = name
-        data[::Entrance.config.username_attr] = email
+        data[::Entrance.fields.name] = name
+        data[::Entrance.fields.username] = email
         user = ::Entrance.model.new(data)
         set_auth_credentials(user, provider, uid)
 

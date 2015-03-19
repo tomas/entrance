@@ -7,8 +7,9 @@ module Entrance
 
     module ClassMethods
 
-      def provides_entrance(&block)
+      def provides_entrance(options = {}, &block)
         Entrance.config.model = self.name
+        local = options.delete(:local) != false
 
         # if the target model class does not have a Model.where() method,
         # then login_by_session wont work, nor the ClassMethods below.
@@ -19,12 +20,20 @@ module Entrance
 
         fields = Entrance.fields
         yield fields if block_given?
-        fields.validate!
 
-        if self.respond_to?(:validates)
-          validates :password, :presence => true, :length => 6..32, :if => :password_required?
-          validates :password, :confirmation => true, :if => :password_required?
-          validates :password_confirmation, :presence => true, :if => :password_required?
+        # username and remember token are used both for local and remote (omniauth)
+        fields.validate_field(:username)
+        fields.validate_option(:remember)
+
+        if local # allows password & reset
+          fields.validate_field(:password)
+          fields.validate_option(:reset)
+
+          if self.respond_to?(:validates)
+            validates :password, :presence => true, :length => 6..32, :if => :password_required?
+            validates :password, :confirmation => true, :if => :password_required?
+            validates :password_confirmation, :presence => true, :if => :password_required?
+          end
         end
       end
 

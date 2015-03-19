@@ -26,41 +26,41 @@ module Entrance
       @auth_uid              = 'auth_uid'
     end
 
-    def validate!
-      raise "Invalid model: #{Entrance.config.model}!" unless Kernel.const_defined?(Entrance.config.model)
+    def validate_field(attr)
+      field = send(attr)
+      unless fields.include?(field.to_sym)
+        raise "Couldn't find '#{field}' in the #{Entrance.model.name} model."
+      end
+    end
 
-      fields = get_model_fields
+    def validate_option(what)
+      if field = send("#{what}_token")
+        until_field = send("#{what}_until")
 
-      %w(username password).each do |attr|
-        field = send(attr)
         unless fields.include?(field.to_sym)
-          raise "Couldn't find '#{field}' in the #{Entrance.model.name} model."
+          raise "No #{field} field found. \
+                 Set the fields.#{what}_token option to nil to disable the #{what} option."
         end
-      end
 
-      %w(remember reset).each do |what|
-        if field = send("#{what}_token")
-          until_field = send("#{what}_until")
-
-          unless fields.include?(field.to_sym)
-            raise "No #{field} field found. \
-                   Set the fields.#{what} option to nil to disable the #{what} option."
+        if until_field
+          unless fields.include?(until_field.to_sym)
+            raise "Couldn't find a #{until_field} field. Cannot continue."
           end
-
-          if until_field
-            unless fields.include?(until_field.to_sym)
-              raise "Couldn't find a #{until_field} field. Cannot continue."
-            end
-          else
-            puts "Disabling expiration timestamp for the #{what} option. This is a VERY bad idea."
-          end
-
-          Entrance.config.can?(what, true)
-
-          mod = what.to_sym == :remember ? Entrance::Model::RememberMethods : Entrance::Model::ResetMethods
-          Entrance.model.send(:include, mod)
+        else
+          puts "Disabling expiration timestamp for the #{what} option. This is a VERY bad idea."
         end
+
+        Entrance.config.can?(what, true)
+
+        mod = what.to_sym == :remember ? Entrance::Model::RememberMethods : Entrance::Model::ResetMethods
+        Entrance.model.send(:include, mod)
       end
+    end
+
+    protected
+
+    def fields
+      @fields ||= get_model_fields
     end
 
     def get_model_fields

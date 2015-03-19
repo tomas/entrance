@@ -4,8 +4,18 @@ module Entrance
 
     REMEMBER_ME_TOKEN = 'auth_token'.freeze
 
+    module ClassMethods
+
+      # lets us do app.skip_paths.push('/specific/path/we/want/unprotected')
+      def allow_paths
+        @allow_paths ||= []
+      end
+
+    end
+
     def self.included(base)
       base.send(:helper_method, :current_user, :logged_in?, :logged_out?) if base.respond_to?(:helper_method)
+      base.extend(ClassMethods)
     end
 
     def authenticate_and_login(username, password, remember_me = false)
@@ -29,7 +39,8 @@ module Entrance
     end
 
     def login_required(opts = {})
-      return if opts[:except] and opts[:except].include?(request.path_info)
+      allowed = (opts[:except] || []) + self.class.allow_paths
+      return if allowed.any? and allowed.include?(request.path_info)
       logged_in? || access_denied
     end
 

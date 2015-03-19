@@ -1,0 +1,5 @@
+<h2>Log in</h2>
+
+<% Entrance::OmniAuth.providers.each do |name| %>
+  <a href="/auth/<%= name %>">Login with <%= name %></a>
+<% end %>
