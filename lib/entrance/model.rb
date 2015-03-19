@@ -108,12 +108,12 @@ module Entrance
 
     module RemoteAuthMethods
 
-      private
-
       def from_remote_auth?
         send(::Entrance.fields.auth_provider).present? \
           && send(::Entrance.fields.auth_uid).present?
       end
+
+      private
 
       def password_required?
         !from_remote_auth? && super
