@@ -4,12 +4,11 @@ require 'mongo_mapper'
 require 'entrance'
 
 MongoMapper.connection = Mongo::Connection.new('localhost')
-MongoMapper.database   = 'entrance-omniauth-example'
+MongoMapper.database   = 'entrance-example'
 
 Entrance.configure do |config|
   config.remember_for  = 1.month
   config.cookie_secure = false # for testing
-  config.access_denied_redirect_to = '/login'
 end
 
 class User

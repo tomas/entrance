@@ -33,19 +33,6 @@ module Entrance
 
       def registered(app)
 
-        ::Entrance.model.class_eval do
-
-          def via_omniauth?
-            send(::Entrance.fields.auth_provider).present? \
-              && send(::Entrance.fields.auth_uid).present?
-          end
-
-          def password_required?
-            !via_omniauth? && (password.nil? || @password_changed)
-          end
-
-        end
-
         app.send(:include, Entrance::Controller) # provides redirects, etc
 
         app.use ::OmniAuth::Builder do

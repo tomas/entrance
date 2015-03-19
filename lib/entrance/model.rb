@@ -9,7 +9,8 @@ module Entrance
 
       def provides_entrance(options = {}, &block)
         Entrance.config.model = self.name
-        local = options.delete(:local) != false
+        local  = options.delete(:local) != false # true by default
+        remote = options.delete(:remote) == true # false by default
 
         # if the target model class does not have a Model.where() method,
         # then login_by_session wont work, nor the ClassMethods below.
@@ -22,11 +23,11 @@ module Entrance
         yield fields if block_given?
 
         # username and remember token are used both for local and remote (omniauth)
-        fields.validate_field(:username)
+        fields.validate(:username)
         fields.validate_option(:remember)
 
         if local # allows password & reset
-          fields.validate_field(:password)
+          fields.validate(:password)
           fields.validate_option(:reset)
 
           if self.respond_to?(:validates)
@@ -34,6 +35,11 @@ module Entrance
             validates :password, :confirmation => true, :if => :password_required?
             validates :password_confirmation, :presence => true, :if => :password_required?
           end
+        end
+
+        if remote
+          fields.validate(:auth_provider, :auth_uid)
+          include RemoteAuthMethods if local # no need to if only remote
         end
       end
 
@@ -86,14 +92,31 @@ module Entrance
         token
       end
 
+      def forget_me!
+        update_attribute(Entrance.fields.remember_token, nil)
+        update_attribute(Entrance.fields.remember_until, nil) if Entrance.fields.remember_until
+      end
+
+      private
+
       def update_remember_token_expiration!(until_date = nil)
         timestamp = Time.now + (until_date || Entrance.config.remember_for).to_i
         update_attribute(Entrance.fields.remember_until, timestamp)
       end
 
-      def forget_me!
-        update_attribute(Entrance.fields.remember_token, nil)
-        update_attribute(Entrance.fields.remember_until, nil) if Entrance.fields.remember_until
+    end
+
+    module RemoteAuthMethods
+
+      private
+
+      def from_remote_auth?
+        send(::Entrance.fields.auth_provider).present? \
+          && send(::Entrance.fields.auth_uid).present?
+      end
+
+      def password_required?
+        !from_remote_auth? && super
       end
 
     end

@@ -26,10 +26,12 @@ module Entrance
       @auth_uid              = 'auth_uid'
     end
 
-    def validate_field(attr)
-      field = send(attr)
-      unless fields.include?(field.to_sym)
-        raise "Couldn't find '#{field}' in the #{Entrance.model.name} model."
+    def validate(*attrs)
+      attrs.each do |attr|
+        field = send(attr)
+        unless fields.include?(field.to_sym)
+          raise "Couldn't find '#{field}' in the #{Entrance.model.name} model."
+        end
       end
     end
 
