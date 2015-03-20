@@ -19,9 +19,10 @@ module Entrance
     end
 
     def authenticate_and_login(username, password, remember_me = false)
-      if user = Entrance.model.authenticate(username, password)
-        login!(user, remember_me)
-        user
+      if user = Entrance.model.authenticate(username, password) \
+        and (!user.respond_to?(:can_login?) || user.can_login?)
+          login!(user, remember_me)
+          user
       end
     end
 
