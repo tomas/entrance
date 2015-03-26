@@ -29,7 +29,7 @@ class User
 
   provides_entrance
 
-  def active?
+  def can_login?
     state.to_sym == :active
   end
 

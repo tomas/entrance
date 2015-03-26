@@ -27,9 +27,11 @@ class User
   key :remember_token
   key :remember_token_expires_at, Time
 
+  ensure_index [[:auth_provider, 1], [:auth_uid, -1]], :unique => true
+
   provides_entrance :local => false, :remote => true
 
-  def active?
+  def can_login?
     state.to_sym == :active
   end
 

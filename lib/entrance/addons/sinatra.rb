@@ -40,7 +40,9 @@ module Entrance
 
       app.post '/login' do
         remember = ['on', 'true', '1'].include?(params[:remember])
-        if user = authenticate_and_login(params[:username], params[:password], remember)
+        if params[:username].blank? or params[:password].blank?
+          redirect_with('/login', :error, "Both fields are required.")
+        elsif user = authenticate_and_login(params[:username], params[:password], remember)
           flash[:success] = 'Welcome back!'
           redirect_to_stored_or(to('/'))
         else
