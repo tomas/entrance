@@ -3,17 +3,16 @@ module Entrance
   class Config
 
     attr_accessor *%w(
-      model cipher secret stretches
-      unique_key username_attr password_attr salt_attr
-      remember_token_attr remember_until_attr reset_token_attr reset_until_attr
+      model local_auth remote_auth cipher secret stretches
       access_denied_redirect_to access_denied_message_key
       reset_password_mailer reset_password_method reset_password_window remember_for
       cookie_domain cookie_secure cookie_path cookie_httponly
-      name_attr auth_provider_attr auth_uid_attr
     )
 
     def initialize
       @model                      = 'User'
+      @local_auth                 = true
+      @remote_auth                = false
 
       # strategies
       @cipher                     = Entrance::Ciphers::BCrypt # or Entrance::Ciphers::SHA1

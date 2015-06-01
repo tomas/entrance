@@ -8,9 +8,12 @@ module Entrance
     module ClassMethods
 
       def provides_entrance(options = {}, &block)
-        Entrance.config.model = self.name
         local  = options.delete(:local) != false # true by default
         remote = options.delete(:remote) == true # false by default
+
+        Entrance.config.model       = self.name
+        Entrance.config.local_auth  = local
+        Entrance.config.remote_auth = remote
 
         # if the target model class does not have a Model.where() method,
         # then login_by_session wont work, nor the ClassMethods below.
@@ -24,11 +27,11 @@ module Entrance
 
         # username and remember token are used both for local and remote (omniauth)
         fields.validate(:username)
-        fields.validate_option(:remember)
+        include Entrance::Model::RememberMethods if fields.validate_option(:remember)
 
         if local # allows password & reset
           fields.validate(:password)
-          fields.validate_option(:reset)
+          include Entrance::Model::ResetMethods if fields.validate_option(:reset)
 
           if self.respond_to?(:validates)
             validates :password, :presence => true, :length => 6..32, :if => :password_required?
@@ -44,6 +47,7 @@ module Entrance
       end
 
       def authenticate(username, password)
+        raise 'Local auth disabled!' unless Entrance.config.local_auth
         return if [username, password].any? { |v| v.nil? || v.strip == '' }
 
         query = {}

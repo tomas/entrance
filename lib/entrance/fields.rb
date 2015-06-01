@@ -53,9 +53,6 @@ module Entrance
         end
 
         Entrance.config.can?(what, true)
-
-        mod = what.to_sym == :remember ? Entrance::Model::RememberMethods : Entrance::Model::ResetMethods
-        Entrance.model.send(:include, mod)
       end
     end
 
