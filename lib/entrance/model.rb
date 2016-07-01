@@ -11,6 +11,10 @@ module Entrance
         local  = options.delete(:local) != false # true by default
         remote = options.delete(:remote) == true # false by default
 
+        if local === false && remote === false
+          raise "You have to enable either local or remote auth via `provides_entrance`."
+        end
+
         Entrance.config.model       = self.name
         Entrance.config.local_auth  = local
         Entrance.config.remote_auth = remote
