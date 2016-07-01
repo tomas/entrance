@@ -91,8 +91,8 @@ module Entrance
       end
 
       def valid_user?(user)
-        if user.respond_to?(:active?) and !user.active?
-          return false
+        if user.respond_to?(:can_login?) and !can_login?
+         return false
         end
         user.valid?
       end
@@ -135,6 +135,8 @@ module Entrance
         if user.valid?
           return user.save && user
         else
+          puts user.inspect
+          puts user.local?
           log "Invalid user: #{user.errors.to_a.join(', ')}"
           false
         end
