@@ -58,7 +58,10 @@ module Entrance
 
           app.send(action, '/auth/:provider/callback') do
             auth = request.env['omniauth.auth']
-            user = ::Entrance::OmniAuth.auth_or_create(auth) or return return_401
+            unless user = ::Entrance::OmniAuth.auth_or_create(auth)
+              # return return_401
+              redirect_with(Entrance.config.access_denied_redirect_to, :error, 'Unable to create record for new user. Check the log file.')
+            end
 
             if ::Entrance::OmniAuth.valid_user?(user)
               login!(user, app.settings.auth_remember)
@@ -133,6 +136,7 @@ module Entrance
           return user.save && user
         else
           log "Invalid user: #{user.errors.to_a.join(', ')}"
+          false
         end
       end
 
