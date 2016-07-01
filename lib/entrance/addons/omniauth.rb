@@ -91,7 +91,7 @@ module Entrance
       end
 
       def valid_user?(user)
-        if user.respond_to?(:can_login?) and !can_login?
+        if user.respond_to?(:can_login?) and !user.can_login?
          return false
         end
         user.valid?
