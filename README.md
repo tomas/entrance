@@ -24,7 +24,7 @@ end
 class ApplicationController < ActionController::Base
   include Entrance::Controller
 
-  before_filter :login_required
+  before_filter :login_required # provided by Entrance::Controller
 
   ...
 end
