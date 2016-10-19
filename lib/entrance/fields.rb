@@ -15,9 +15,9 @@ module Entrance
       @password              = 'password_hash'
 
       # remember and reset
-      @remember_token        = 'remember_token'
+      @remember_token        = 'remember_token' # set to nil to disable 'remember me' option
       @remember_until        = 'remember_token_expires_at'
-      @reset_token           = 'reset_token'
+      @reset_token           = 'reset_token'    # set to nil to disable 'reset password' option
       @reset_until           = 'reset_token_expires_at'
 
       # omniauth
