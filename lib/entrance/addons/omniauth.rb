@@ -90,6 +90,10 @@ module Entrance
       def log(str)
         logger.info(str) rescue nil
       end
+      
+      def omniauth_params
+        @omniauth_params
+      end
 
       def valid_user?(user)
         if user.respond_to?(:can_login?) and !user.can_login?
@@ -98,18 +102,18 @@ module Entrance
         user.valid?
       end
 
-      def can_authenticate_with?(service, params = {})
+      def can_authenticate_with?(service)
         return true if ::OmniAuth.config.test_mode and service.to_sym == :default
         ::Entrance::OmniAuth.providers.include?(service.to_sym)
       end
 
-      def find_user_with_username(username, params = {})
+      def find_user_with_username(username)
         query = {}
         query[::Entrance.fields.username] = username # .to_s.downcase.strip
         ::Entrance.model.where(query).first
       end
 
-      def find_user_with_provider_and_uid(provider, uid, params = {})
+      def find_user_with_provider_and_uid(provider, uid)
         query = {}
         query[::Entrance.fields.auth_provider] = provider
         query[::Entrance.fields.auth_uid] = uid
@@ -126,7 +130,7 @@ module Entrance
         user.save && user
       end
 
-      def create_user(name, email, provider, uid, params = {})
+      def create_user(name, email, provider, uid)
         data = {}
         data[::Entrance.fields.name] = name
         data[::Entrance.fields.username] = email
@@ -144,6 +148,8 @@ module Entrance
       # authorizes or creates a user with the given oauth credentials.
       # does not check if user is banned or not (the /callback route does that)
       def auth_or_create(auth, params = {})
+        @omniauth_params = params
+        
         provider, uid = auth['provider'], auth['uid']
         info = auth['info'] || {}
 
@@ -151,10 +157,10 @@ module Entrance
 
         # if running on production, make sure the provider is actually valid
         unless ::OmniAuth.config.test_mode
-          raise "Invalid provider: #{provider}" unless can_authenticate_with?(provider, params)
+          raise "Invalid provider: #{provider}" unless can_authenticate_with?(provider)
         end
 
-        if u = find_user_with_provider_and_uid(provider, uid, params)
+        if u = find_user_with_provider_and_uid(provider, uid)
 
           log "Authenticated! Provider: #{provider}, UID: #{uid}"
           return u
@@ -162,7 +168,7 @@ module Entrance
         else # no user with that provider/uid found
           name, email = info['name'], info['email']
 
-          if email.present? and user = find_user_with_username(email, params)
+          if email.present? and user = find_user_with_username(email)
 
             # if using different provider, it will update it
             log "Found user, but with different credentials."
@@ -173,7 +179,7 @@ module Entrance
             log "Creating new user: '#{name}', email #{email}"
             name = name.is_a?(Array) ? name[0] : name
 
-            return create_user(name, email, provider, uid, params)
+            return create_user(name, email, provider, uid)
           end
 
         end
