@@ -98,7 +98,7 @@ module Entrance
         user.valid?
       end
 
-      def can_authenticate_with?(service)
+      def can_authenticate_with?(service, params = {})
         return true if ::OmniAuth.config.test_mode and service.to_sym == :default
         ::Entrance::OmniAuth.providers.include?(service.to_sym)
       end
