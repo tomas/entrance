@@ -135,8 +135,6 @@ module Entrance
         if user.valid?
           return user.save && user
         else
-          puts user.inspect
-          puts user.local?
           log "Invalid user: #{user.errors.to_a.join(', ')}"
           false
         end
