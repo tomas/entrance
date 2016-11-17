@@ -57,8 +57,9 @@ module Entrance
         [:get, :post].each do |action|
 
           app.send(action, '/auth/:provider/callback') do
-            auth = request.env['omniauth.auth']
-            unless user = ::Entrance::OmniAuth.auth_or_create(auth)
+            auth   = request.env['omniauth.auth']
+            params = request.env["omniauth.params"]
+            unless user = ::Entrance::OmniAuth.auth_or_create(auth, params)
               # return return_401
               redirect_with(Entrance.config.access_denied_redirect_to, :error, 'Unable to create record for new user. Check the log file.')
             end
@@ -142,7 +143,7 @@ module Entrance
 
       # authorizes or creates a user with the given oauth credentials.
       # does not check if user is banned or not (the /callback route does that)
-      def auth_or_create(auth)
+      def auth_or_create(auth, params = {})
         provider, uid = auth['provider'], auth['uid']
         info = auth['info'] || {}
 
@@ -150,7 +151,7 @@ module Entrance
 
         # if running on production, make sure the provider is actually valid
         unless ::OmniAuth.config.test_mode
-          raise "Invalid provider: #{provider}" unless can_authenticate_with?(provider)
+          raise "Invalid provider: #{provider}" unless can_authenticate_with?(provider, params)
         end
 
         if u = find_user_with_provider_and_uid(provider, uid)
