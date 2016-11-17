@@ -10,8 +10,10 @@ require 'entrance/addons/omniauth'
 class Hello < Sinatra::Base
   register Entrance::OmniAuth
 
+  set :sessions, true
   set :auth_test, false    # only true for testing
   set :auth_remember, true # enables 'remember me' for omniauth logins
+  set :auth_redirect, '/'  # where to redirect on successful login
   set :auth_providers, {
     :twitter => {
       :key => 'foobar'
@@ -67,7 +69,7 @@ module Entrance
             if ::Entrance::OmniAuth.valid_user?(user)
               login!(user, app.settings.auth_remember)
               flash[:success] = 'Welcome back!' if respond_to?(:flash)
-              redirect_to_stored_or(to('/'))
+              redirect_to_stored_or(to(app.settings.auth_redirect))
             else
               redirect_with(Entrance.config.access_denied_redirect_to, :error, 'Unable to authenticate. Please try again.')
             end
