@@ -103,13 +103,13 @@ module Entrance
         ::Entrance::OmniAuth.providers.include?(service.to_sym)
       end
 
-      def find_user_with_username(username)
+      def find_user_with_username(username, params = {})
         query = {}
         query[::Entrance.fields.username] = username # .to_s.downcase.strip
         ::Entrance.model.where(query).first
       end
 
-      def find_user_with_provider_and_uid(provider, uid)
+      def find_user_with_provider_and_uid(provider, uid, params = {})
         query = {}
         query[::Entrance.fields.auth_provider] = provider
         query[::Entrance.fields.auth_uid] = uid
@@ -126,7 +126,7 @@ module Entrance
         user.save && user
       end
 
-      def create_user(name, email, provider, uid)
+      def create_user(name, email, provider, uid, params = {})
         data = {}
         data[::Entrance.fields.name] = name
         data[::Entrance.fields.username] = email
@@ -154,7 +154,7 @@ module Entrance
           raise "Invalid provider: #{provider}" unless can_authenticate_with?(provider, params)
         end
 
-        if u = find_user_with_provider_and_uid(provider, uid)
+        if u = find_user_with_provider_and_uid(provider, uid, params)
 
           log "Authenticated! Provider: #{provider}, UID: #{uid}"
           return u
@@ -162,7 +162,7 @@ module Entrance
         else # no user with that provider/uid found
           name, email = info['name'], info['email']
 
-          if email.present? and user = find_user_with_username(email)
+          if email.present? and user = find_user_with_username(email, params)
 
             # if using different provider, it will update it
             log "Found user, but with different credentials."
@@ -173,7 +173,7 @@ module Entrance
             log "Creating new user: '#{name}', email #{email}"
             name = name.is_a?(Array) ? name[0] : name
 
-            return create_user(name, email, provider, uid)
+            return create_user(name, email, provider, uid, params)
           end
 
         end
