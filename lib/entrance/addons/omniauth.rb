@@ -97,10 +97,6 @@ module Entrance
         @omniauth_params
       end
 
-      def model
-        ::Entrance.model
-      end
-
       def valid_user?(user)
         if user.respond_to?(:can_login?) and !user.can_login?
          return false
@@ -116,14 +112,14 @@ module Entrance
       def find_user_with_username(username)
         query = {}
         query[::Entrance.fields.username] = username # .to_s.downcase.strip
-        model.where(query).first
+        scoped_model.where(query).first
       end
 
       def find_user_with_provider_and_uid(provider, uid)
         query = {}
         query[::Entrance.fields.auth_provider] = provider
         query[::Entrance.fields.auth_uid] = uid
-        model.where(query).first
+        scoped_model.where(query).first
       end
 
       def set_auth_credentials(user, provider, uid)
@@ -140,7 +136,7 @@ module Entrance
         data = {}
         data[::Entrance.fields.name] = name
         data[::Entrance.fields.username] = email
-        user = model.new(data)
+        user = scoped_model.new(data)
         set_auth_credentials(user, provider, uid)
 
         if user.valid?
