@@ -10,6 +10,7 @@ module Entrance
       def provides_entrance(options = {}, &block)
         local  = options.delete(:local) != false # true by default
         remote = options.delete(:remote) == true # false by default
+        skip_checks = options.delete(:skip_checks)
 
         if local === false && remote === false
           raise "You have to enable either local or remote auth via `provides_entrance`."
@@ -30,11 +31,11 @@ module Entrance
         yield fields if block_given?
 
         # username and remember token are used both for local and remote (omniauth)
-        fields.validate(:username)
+        fields.validate(:username) unless skip_checks
         include Entrance::Model::RememberMethods if fields.validate_option(:remember)
 
         if local # allows password & reset
-          fields.validate(:password)
+          fields.validate(:password) unless skip_checks
           include Entrance::Model::ResetMethods if fields.validate_option(:reset)
 
           if self.respond_to?(:validates)
@@ -45,7 +46,7 @@ module Entrance
         end
 
         if remote
-          fields.validate(:auth_provider, :auth_uid)
+          fields.validate(:auth_provider, :auth_uid) unless skip_checks
           include RemoteAuthMethods if local # no need to if only remote
         end
       end
