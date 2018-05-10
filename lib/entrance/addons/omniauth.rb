@@ -92,7 +92,7 @@ module Entrance
       def log(str)
         logger.info(str) rescue nil
       end
-      
+
       def omniauth_params
         @omniauth_params
       end
@@ -155,7 +155,7 @@ module Entrance
       # does not check if user is banned or not (the /callback route does that)
       def auth_or_create(auth, params = {})
         @omniauth_params = params
-        
+
         provider, uid = auth['provider'], auth['uid']
         info = auth['info'] || {}
 
