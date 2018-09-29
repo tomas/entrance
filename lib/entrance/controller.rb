@@ -107,9 +107,11 @@ module Entrance
       end
     end
 
+    SKIP_STORE_PATHS = ['/favicon.ico']
+
     def store_location
-      path = request.fullpath
-      session[:return_to] = path unless ['/favicon.ico'].include?(path)
+      path = request.get? ? request.fullpath : request.env['HTTP_REFERER']
+      session[:return_to] = path unless path.blank? || SKIP_STORE_PATHS.include?(path)
     end
 
     def redirect_to_stored_or(default_path)
