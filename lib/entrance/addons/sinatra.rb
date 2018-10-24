@@ -10,7 +10,7 @@ be present in a views/public directory.
 Once a user logs in, he or she will be redirected to /.
 
 require 'sinatra/base'
-require 'entrance/sinatra'
+require 'entrance/addons/sinatra'
 
 class Hello < Sinatra::Base
   register Entrance::Sinatra
