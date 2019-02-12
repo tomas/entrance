@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'bundler/setup'
+require 'active_model/serializers'
 require 'mongo_mapper'
 require 'entrance'
 
