@@ -34,7 +34,7 @@ module Entrance
         if logged_in?
           redirect(to('/'))
         else
-          render_form('login')
+          erb(:'public/login')
         end
       end
 
@@ -58,7 +58,7 @@ module Entrance
       app.get '/signup' do
         return redirect(to('/')) if logged_in?
         @user = ::Entrance.model.new
-        render_form('signup')
+        erb(:'public/signup')
       end
 
       app.post '/signup' do
@@ -67,14 +67,8 @@ module Entrance
           redirect_with('/login', :success, "Account created! Please sign in to continue.")
         else
           flash[:error] = "Couldn't sign you up. Please try again."
-          render_form('signup')
+          erb(:'public/signup')
         end
-      end
-
-      private
-
-      def render_form(name)
-        erb :'public/' + name
       end
 
     end
